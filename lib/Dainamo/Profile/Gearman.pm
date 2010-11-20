@@ -26,7 +26,10 @@ sub new {
 
 sub run {
     my ($self, ) = @_;
-    $self->{gearman}->work;
+    $self->{gearman}->work(stop_if => sub {
+        my ($idol, $last_job_time) = @_;
+        return $idol ? 1 : 0;
+    });
 }
 
 1;
