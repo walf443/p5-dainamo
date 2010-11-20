@@ -2,7 +2,7 @@ package Dainamo;
 use strict;
 use warnings;
 use Mouse;
-use Parallel::Prefork;
+use Parallel::Prefork::SpareWorkers qw/STATUS_IDLE/;
 our $VERSION = '0.01';
 
 has 'max_workers' => (
@@ -32,8 +32,9 @@ sub run {
     my ($self, ) = @_;
 
     warn $self->max_workers;
-    my $pm = Parallel::Prefork->new({
+    my $pm = Parallel::Prefork::SpareWorkers->new({
         max_workers => $self->max_workers,
+        min_spare_workers => $self->max_workers,
         trap_signals => {
             TERM => 'TERM',
             HUP  => 'TERM',
@@ -48,6 +49,8 @@ sub run {
 
         my $profile = $profiles[rand(@profiles)];
         $profile->run;
+
+        $pm->finish;
     }
     $pm->wait_all_children();
 
@@ -56,7 +59,6 @@ sub run {
 sub add_profile {
     my ($self, %args) = @_;
 
-    warn $args{profile};
     push @{ $self->{profiles} }, $args{profile};
 }
 
