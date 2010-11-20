@@ -56,7 +56,8 @@ sub run {
         };
 
         my $profile = $profiles[rand(@profiles)];
-        infof("child process: $profile [pid: $$]");
+        debugf("child process: $profile [pid: $$]");
+        $0 .= ": $profile";
         $profile->run;
 
         $pm->finish;
