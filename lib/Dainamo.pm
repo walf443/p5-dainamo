@@ -32,7 +32,7 @@ has 'profiles' => (
 sub run {
     my ($self, ) = @_;
 
-    infof("starting $0 [pid: $$");
+    infof("starting $0 [pid: $$]");
     my $pm = Parallel::Prefork::SpareWorkers->new({
         max_workers => $self->max_workers,
         min_spare_workers => $self->max_workers,
