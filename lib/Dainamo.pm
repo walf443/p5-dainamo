@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Mouse;
 use Parallel::Prefork::SpareWorkers qw/STATUS_IDLE/;
+use Log::Minimal qw/infof warnf critf debugf/;;
 our $VERSION = '0.01';
 
 has 'max_workers' => (
@@ -31,7 +32,7 @@ has 'profiles' => (
 sub run {
     my ($self, ) = @_;
 
-    warn $self->max_workers;
+    infof("starting $0 [pid: $$");
     my $pm = Parallel::Prefork::SpareWorkers->new({
         max_workers => $self->max_workers,
         min_spare_workers => $self->max_workers,
@@ -44,10 +45,18 @@ sub run {
 
     my @profiles = @{ $self->{profiles} };
 
+    $SIG{INT} = sub {
+        infof("start graceful shutdown $0 [pid: $$]");
+        exit;
+    };
     while ( $pm->signal_received ne 'TERM' ) {
         $pm->start and next;
+        $SIG{INT} = sub {
+            exit; # reset SIG INT.
+        };
 
         my $profile = $profiles[rand(@profiles)];
+        infof("child process: $profile [pid: $$]");
         $profile->run;
 
         $pm->finish;
