@@ -22,7 +22,7 @@ has 'log_path' => (
 
 has 'log_level' => (
     is => 'rw',
-    default => 'info',
+    default => 'debug',
 );
 
 has 'profiles' => (
@@ -32,6 +32,21 @@ has 'profiles' => (
 
 sub run {
     my ($self, ) = @_;
+
+    local $ENV{LM_DEBUG} = 1 if $self->log_level eq 'debug';
+    local $Log::Minimal::PRINT = sub {
+        my ($time, $type, $message, $trace) = @_;
+        my $format = "[$time] [$type] [$$] $message at $trace\n";
+        if ( $self->log_path ) {
+            open my $fh, $self->log_path
+                or die qq|Can't open "@{[ $self->log_path ]}|;
+
+            print $fh $format;
+            close $fh;
+        } else {
+            print STDERR $format;
+        }
+    };
 
     infof("starting $0 [pid: $$]");
     my $pm = Parallel::Prefork::SpareWorkers->new({
