@@ -2,6 +2,7 @@ package Dainamo;
 use strict;
 use warnings;
 use Mouse;
+use Try::Tiny;
 use Parallel::Prefork::SpareWorkers qw/STATUS_IDLE/;
 use Log::Minimal qw/infof warnf critf debugf/;;
 our $VERSION = '0.01';
@@ -58,7 +59,13 @@ sub run {
         my $profile = $profiles[rand(@profiles)];
         debugf("child process: $profile [pid: $$]");
         $0 .= ": $profile";
-        $profile->run;
+
+        try {
+            $profile->run;
+        } catch {
+            my $error = $_;
+            critf($error);
+        };
 
         $pm->finish;
     }
