@@ -60,6 +60,7 @@ sub run {
             push @child_pids, $pid;
         } else {
             $0 .= ": $profile";
+            infof("worker manager process: $profile [pid: $$] max_workers: $max_workers");
             my $pm = Parallel::Prefork::SpareWorkers->new({
                 max_workers => $max_workers,
                 min_spare_workers => $max_workers,
