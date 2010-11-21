@@ -123,8 +123,8 @@ Dainamo - manage worker processes.
       weight  => 1.0,
   );
   if ( $ENV{DEVELOPMENT} ) {
-    $dainamo->daemonize(1);
   } else {
+    $dainamo->daemonize(1);
   }
   $dainamo->run;
 
