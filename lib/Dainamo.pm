@@ -69,7 +69,7 @@ sub run {
                 max_workers => $max_workers,
                 min_spare_workers => $max_workers,
                 trap_signals => {
-                    INT  => 'TERM',
+                    INT  => 'INT',
                     TERM => 'TERM',
                     HUP  => 'TERM',
                 },
@@ -78,7 +78,7 @@ sub run {
                 $SIG{$sig} = sub {
                     debugf("trap signal: $sig");
                     infof("start graceful shutdown $0 [pid: $$]");
-                    $pm->signal_all_children('TERM');
+                    $pm->signal_all_children($sig);
                     $pm->wait_all_children;
                     infof("shutdown $0");
                     exit;
