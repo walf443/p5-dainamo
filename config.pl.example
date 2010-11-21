@@ -1,0 +1,76 @@
+#!/usr/bin/perl
+package HogeHoge::Worker::Gearman::Double;
+use strict;
+use warnings;
+
+sub work {
+    my ($class, $job) = @_;
+    my $ret = $job->arg * $job->arg;
+    return "$ret (pid $$)";
+}
+
+package HogeHoge::Worker::Gearman::Sqrt;
+use strict;
+use warnings;
+
+sub work {
+    my ($class, $job) = @_;
+    my $ret = sqrt($job->arg);
+    return $ret;
+}
+
+1;
+
+package main;
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+use lib 'lib';
+use Dainamo;
+use Dainamo::Profile::Gearman;
+
+my $dainamo = Dainamo->new(
+    max_workers => 10,
+    log_level => 'info',
+    # daemonize => 1,
+    # log_path => "| /opt/local/sbin/cronolog /tmp/dainamo_log/daimano.%Y%m%d.log",
+);
+
+$dainamo->add_profile(
+    profile => Dainamo::Profile::Gearman->new(
+        name => 'hogehoge',
+        max_requests_per_child => 1,
+        config => +{
+            job_servers => '127.0.0.1',
+            workers => [qw( HogeHoge::Worker::Gearman::Double )],
+        },
+    ),
+    weight => 1.0,
+);
+
+$dainamo->add_profile(
+    profile => Dainamo::Profile::Gearman->new(
+        name => 'hogehoge',
+        max_requests_per_child => 2,
+        config => +{
+            job_servers => '127.0.0.1',
+            workers => [qw( HogeHoge::Worker::Gearman::Double )],
+        },
+    ),
+    weight => 1.0,
+);
+
+$dainamo->add_profile(
+    profile => Dainamo::Profile::Gearman->new(
+        name => 'fugafuga',
+        max_requests_per_child => 3,
+        config => +{
+            job_servers => '127.0.0.1',
+            workers => [qw( HogeHoge::Worker::Gearman::Sqrt )],
+        }
+    ),
+    weight => 1.0,
+);
+
+$dainamo; # last line
