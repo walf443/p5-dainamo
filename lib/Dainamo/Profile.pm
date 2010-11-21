@@ -8,6 +8,11 @@ sub new {
     bless \%args, $class;
 }
 
+sub max_requests_per_child {
+    my ($self, ) = @_;
+    $self->{max_requests_per_child} || 10;
+}
+
 sub inspect {
     my ($self, ) = @_;
     my $class = ref $self;

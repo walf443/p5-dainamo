@@ -83,12 +83,20 @@ sub run {
 
                 debugf("child process: $profile [pid: $$]");
 
-                try {
-                    $profile->run;
-                } catch {
-                    my $error = $_;
-                    critf($error);
+                my $requests_per_child = $profile->max_requests_per_child;
+                $SIG{TERM} = sub {
+                    $requests_per_child = 0;
                 };
+                while ( $requests_per_child ) {
+                    try {
+                        debugf $requests_per_child;
+                        $requests_per_child--;
+                        $profile->run;
+                    } catch {
+                        my $error = $_;
+                        critf($error);
+                    };
+                }
 
                 $pm->finish;
             }
