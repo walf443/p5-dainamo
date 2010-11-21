@@ -68,6 +68,7 @@ sub run {
         # TODO: consider weight.
         my $max_workers = int($self->max_workers / $num_profiles ) || 1; # at least over 1.
         my $pid = fork;
+        die "Can't fork: $!" unless defined $pid;
         if ( $pid ) {
             $child_pid_of->{$pid} = 1;
         } else {

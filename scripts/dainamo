@@ -31,6 +31,8 @@ my $starter = sub {
 if ( $reload ) {
     while ( 1 ) {
         my $pid = fork;
+        die "Can't fork: $!" unless defined $pid;
+
         if ( $pid ) {
             local $0 = "$0: [watcher]";
             local $SIG{TERM} = sub {
