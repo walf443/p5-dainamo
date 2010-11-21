@@ -6,7 +6,9 @@ use Qudo;
 
 sub new {
     my ($class, %args) = @_;
-    bless \%args, $class;
+    my $self = $class->SUPER::new(%args);
+    $self->qudo; # for CoW.
+    return $self;
 }
 
 sub qudo {
@@ -22,7 +24,7 @@ sub run {
     # copied from Qudo's work.
     my $work_delay = $self->qudo->{work_delay};
     unless ( $self->qudo->manager->work_once ) {
-        $self->{qudo} = undef;
+        $self->{qudo} = undef; # disconnect while sleep.
         sleep $work_delay;
     }
     $self->{qudo} = undef;
