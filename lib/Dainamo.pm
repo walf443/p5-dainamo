@@ -54,6 +54,7 @@ sub run {
     infof("starting $0 [pid: $$]");
 
     my $child_pid_of = {};
+    my $prog_name = $0;
     for my $profile ( @{ $self->{profiles} } ) {
         my $num_profiles = @{ $self->{profiles} };
         # TODO: consider weight.
@@ -62,7 +63,7 @@ sub run {
         if ( $pid ) {
             $child_pid_of->{$pid} = 1;
         } else {
-            $0 .= ": $profile";
+            $0 = "$prog_name: [manager] $profile";
             infof("worker manager process: $profile [pid: $$] max_workers: $max_workers");
             my $pm = Parallel::Prefork::SpareWorkers->new({
                 max_workers => $max_workers,
@@ -85,6 +86,8 @@ sub run {
             }
             while ( $pm->signal_received ne 'TERM' ) {
                 $pm->start and next;
+
+                $0 = "$prog_name: [child] $profile";
                 srand; # It's trap to call rand in child process. so, initialized.
 
                 debugf("child process: $profile [pid: $$]");
