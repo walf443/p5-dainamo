@@ -41,8 +41,16 @@ sub run {
         my ($time, $type, $message, $trace) = @_;
         my $format = "[$time] [$type] [$$] $message at $trace\n";
         if ( $self->log_path ) {
-            open my $fh, $self->log_path
-                or die qq|Can't open "@{[ $self->log_path ]}|;
+            my $fh;
+            # you can specify log_path like followings:
+            #   log_path => qq{| /usr/sbin/cronolog "/var/log/dainamo/%Y%m%d.log"}
+            if ( $self->log_path =~ /^\|\s+/ ) {
+                open $fh, $self->log_path
+                    or die qq|Can't open "@{[ $self->log_path ]}"|;
+            } else {
+                open $fh, '>>', $self->log_path
+                    or die qq|Can't open "@{[ $self->log_path ]}"|;
+            }
 
             print $fh $format;
             close $fh;
