@@ -49,43 +49,51 @@ sub run {
     };
 
     infof("starting $0 [pid: $$]");
-    my $pm = Parallel::Prefork::SpareWorkers->new({
-        max_workers => $self->max_workers,
-        min_spare_workers => $self->max_workers,
-        trap_signals => {
-            TERM => 'TERM',
-            HUP  => 'TERM',
-            USR1 => undef,
-        },
-    });
 
-    my @profiles = @{ $self->{profiles} };
+    my @child_pids;
+    for my $profile ( @{ $self->{profiles} } ) {
+        my $num_profiles = @{ $self->{profiles} };
+        # TODO: consider weight.
+        my $max_workers = $self->max_workers / $num_profiles;
+        my $pid = fork;
+        if ( $pid ) {
+            push @child_pids, $pid;
+        } else {
+            $0 .= ": $profile";
+            my $pm = Parallel::Prefork::SpareWorkers->new({
+                max_workers => $max_workers,
+                min_spare_workers => $max_workers,
+                trap_signals => {
+                    TERM => 'TERM',
+                    HUP  => 'TERM',
+                    USR1 => undef,
+                },
+            });
+            $SIG{INT} = sub {
+                infof("start graceful shutdown $0 [pid: $$]");
+                exit;
+            };
+            while ( $pm->signal_received ne 'TERM' ) {
+                $pm->start and next;
+                $SIG{INT} = sub {
+                    exit; # reset SIG INT.
+                };
 
-    $SIG{INT} = sub {
-        infof("start graceful shutdown $0 [pid: $$]");
-        exit;
-    };
-    while ( $pm->signal_received ne 'TERM' ) {
-        $pm->start and next;
-        $SIG{INT} = sub {
-            exit; # reset SIG INT.
-        };
+                debugf("child process: $profile [pid: $$]");
 
-        srand;
-        my $profile = $profiles[rand(@profiles)];
-        debugf("child process: $profile [pid: $$]");
-        $0 .= ": $profile";
+                try {
+                    $profile->run;
+                } catch {
+                    my $error = $_;
+                    critf($error);
+                };
 
-        try {
-            $profile->run;
-        } catch {
-            my $error = $_;
-            critf($error);
-        };
-
-        $pm->finish;
+                $pm->finish;
+            }
+            $pm->wait_all_children();
+        }
     }
-    $pm->wait_all_children();
+    wait;
 
 }
 
