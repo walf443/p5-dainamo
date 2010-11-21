@@ -123,6 +123,7 @@ sub run {
         my $pid = wait;
         delete $child_pid_of->{$pid};
     }
+    infof("shutdown $0");
 
 }
 
