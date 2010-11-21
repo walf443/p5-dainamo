@@ -11,8 +11,8 @@ sub new {
     my $self = $class->SUPER::new(%args);
 
     $self->{gearman} = Gearman::Worker->new;
-    $self->{gearman}->job_servers($self->{job_servers});
-    for my $worker ( @{ $self->{workers} } ) {
+    $self->{gearman}->job_servers($self->{config}->{job_servers});
+    for my $worker ( @{ $self->{config}->{workers} } ) {
         $worker->use;
 
         $self->{gearman}->register_function($worker => sub {

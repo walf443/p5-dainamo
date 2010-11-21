@@ -119,7 +119,13 @@ Dainamo - manage worker processes.
     max_workers => 10,
   );
   $dainamo->add_profile(
-      profile => Dainamo::Profile::Gearman->new(),
+      profile => Dainamo::Profile::Gearman->new(
+        name => 'Project1',
+        config => {
+            job_servers => '127.0.0.1:7003',
+            workers => [qw( Project1::Worker::Job1 Project1::Worker::Job2 )],
+        }
+      ),
       weight  => 1.0,
   );
   if ( $ENV{DEVELOPMENT} ) {
