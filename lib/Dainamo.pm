@@ -7,6 +7,7 @@ use Parallel::Prefork::SpareWorkers qw/STATUS_IDLE/;
 use Log::Minimal qw/infof warnf critf debugf/;;
 use Proc::Daemon;
 our $VERSION = '0.01';
+use 5.00800;
 
 has 'max_workers' => (
     is => 'ro',

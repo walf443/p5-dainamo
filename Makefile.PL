@@ -13,7 +13,14 @@ author_tests 'xt';
 build_requires 'Test::More';
 build_requires 'Test::LoadAllModules';
 build_requires 'Module::Install::ReadmeFromPod';
-use_test_base;
+
+requires 'opts';
+requires 'parent';
+requires 'Proc::Daemon';
+requires 'Mouse';
+requires 'Log::Minimal';
+requires 'Parallel::Prefork';
+
 auto_include;
 auto_set_repository;
 WriteAll;
