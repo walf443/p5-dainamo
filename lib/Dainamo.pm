@@ -89,7 +89,6 @@ sub run {
                 };
                 while ( $requests_per_child ) {
                     try {
-                        debugf $requests_per_child;
                         $requests_per_child--;
                         $profile->run;
                     } catch {
