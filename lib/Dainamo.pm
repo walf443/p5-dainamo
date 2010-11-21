@@ -54,7 +54,7 @@ sub run {
     for my $profile ( @{ $self->{profiles} } ) {
         my $num_profiles = @{ $self->{profiles} };
         # TODO: consider weight.
-        my $max_workers = $self->max_workers / $num_profiles;
+        my $max_workers = int($self->max_workers / $num_profiles ) || 1; # at least over 1.
         my $pid = fork;
         if ( $pid ) {
             push @child_pids, $pid;
