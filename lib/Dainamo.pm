@@ -71,6 +71,7 @@ sub run {
             exit; # reset SIG INT.
         };
 
+        srand;
         my $profile = $profiles[rand(@profiles)];
         debugf("child process: $profile [pid: $$]");
         $0 .= ": $profile";
