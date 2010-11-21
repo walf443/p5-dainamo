@@ -5,6 +5,7 @@ use Mouse;
 use Try::Tiny;
 use Parallel::Prefork::SpareWorkers qw/STATUS_IDLE/;
 use Log::Minimal qw/infof warnf critf debugf/;;
+use Proc::Daemon;
 our $VERSION = '0.01';
 
 has 'max_workers' => (
@@ -33,6 +34,8 @@ has 'profiles' => (
 sub run {
     my ($self, ) = @_;
 
+    Proc::Daemon::Init if $self->daemonize;
+
     local $ENV{LM_DEBUG} = 1 if $self->log_level eq 'debug';
     local $Log::Minimal::PRINT = sub {
         my ($time, $type, $message, $trace) = @_;
@@ -50,14 +53,14 @@ sub run {
 
     infof("starting $0 [pid: $$]");
 
-    my @child_pids;
+    my $child_pid_of = {};
     for my $profile ( @{ $self->{profiles} } ) {
         my $num_profiles = @{ $self->{profiles} };
         # TODO: consider weight.
         my $max_workers = int($self->max_workers / $num_profiles ) || 1; # at least over 1.
         my $pid = fork;
         if ( $pid ) {
-            push @child_pids, $pid;
+            $child_pid_of->{$pid} = 1;
         } else {
             $0 .= ": $profile";
             infof("worker manager process: $profile [pid: $$] max_workers: $max_workers");
@@ -65,28 +68,34 @@ sub run {
                 max_workers => $max_workers,
                 min_spare_workers => $max_workers,
                 trap_signals => {
+                    INT  => 'TERM',
                     TERM => 'TERM',
                     HUP  => 'TERM',
-                    USR1 => undef,
                 },
             });
-            $SIG{INT} = sub {
-                infof("start graceful shutdown $0 [pid: $$]");
-                exit;
-            };
+            for my $sig ( qw/ TERM INT / ) {
+                $SIG{$sig} = sub {
+                    debugf("trap signal: $sig");
+                    infof("start graceful shutdown $0 [pid: $$]");
+                    $pm->signal_all_children('TERM');
+                    $pm->wait_all_children;
+                    infof("shutdown $0");
+                    exit;
+                };
+            }
             while ( $pm->signal_received ne 'TERM' ) {
                 $pm->start and next;
                 srand; # It's trap to call rand in child process. so, initialized.
-                $SIG{INT} = sub {
-                    exit; # reset SIG INT.
-                };
 
                 debugf("child process: $profile [pid: $$]");
 
                 my $requests_per_child = $profile->max_requests_per_child;
-                $SIG{TERM} = sub {
-                    $requests_per_child = 0;
-                };
+                for my $sig ( qw/ TERM INT / ) {
+                    $SIG{$sig} = sub {
+                        debugf("trap signal: $sig");
+                        $requests_per_child = 0;
+                    };
+                }
                 while ( $requests_per_child ) {
                     try {
                         $requests_per_child--;
@@ -102,7 +111,18 @@ sub run {
             $pm->wait_all_children();
         }
     }
-    wait;
+    for my $sig ( qw/TERM INT HUP/ ) {
+        $SIG{$sig} = sub {
+            debugf("trap signal: $sig");
+            for my $pid ( keys %{ $child_pid_of } ) {
+                kill $sig, $pid;
+            }
+        };
+    }
+    while ( keys %{ $child_pid_of } ) {
+        my $pid = wait;
+        delete $child_pid_of->{$pid};
+    }
 
 }
 
