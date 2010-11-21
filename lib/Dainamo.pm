@@ -183,6 +183,8 @@ Dainamo is an apllication that manage worker process.
 
 THIS SOFTWARE IS ALPHA QUALITIY. API MAY CHANGE IN FUTURE.
 
+Api is in discussion at <irc://irc.freenode.org/#dainamo>
+
 =head1 AUTHOR
 
 Keiji Yoshimi E<lt>walf443 at gmail dot comE<gt>
