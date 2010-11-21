@@ -19,7 +19,7 @@ my $starter = sub {
     if ( $max_workers ) {
         $dainamo->max_workers($max_workers);
     }
-    pod2usage(2) if !$dainamo->max_workers;
+    die "please set max_workers" if !$dainamo->max_workers;
 
     if ( defined $daemonize ) {
         $dainamo->daemonize($daemonize);
