@@ -23,7 +23,9 @@ SYNOPSIS
       $dainamo->run;
 
 DESCRIPTION
-    Dainamo is
+    Dainamo is an apllication that manage worker process.
+
+    THIS SOFTWARE IS ALPHA QUALITIY. API MAY CHANGE IN FUTURE.
 
 AUTHOR
     Keiji Yoshimi <walf443 at gmail dot com>

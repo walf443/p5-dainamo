@@ -179,7 +179,9 @@ Dainamo - manage worker processes.
 
 =head1 DESCRIPTION
 
-Dainamo is
+Dainamo is an apllication that manage worker process.
+
+THIS SOFTWARE IS ALPHA QUALITIY. API MAY CHANGE IN FUTURE.
 
 =head1 AUTHOR
 
