@@ -76,6 +76,7 @@ sub run {
             };
             while ( $pm->signal_received ne 'TERM' ) {
                 $pm->start and next;
+                srand; # It's trap to call rand in child process. so, initialized.
                 $SIG{INT} = sub {
                     exit; # reset SIG INT.
                 };
