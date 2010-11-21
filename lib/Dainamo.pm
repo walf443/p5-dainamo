@@ -46,7 +46,7 @@ sub run {
             # you can specify log_path like followings:
             #   log_path => qq{| /usr/sbin/cronolog "/var/log/dainamo/%Y%m%d.log"}
             if ( $self->log_path =~ /^\|\s+/ ) {
-                open $fh, $self->log_path
+                open $fh, $self->log_path ## no critic
                     or die qq|Can't open "@{[ $self->log_path ]}"|;
             } else {
                 open $fh, '>>', $self->log_path
