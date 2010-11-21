@@ -90,12 +90,14 @@ sub run {
                 debugf("child process: $profile [pid: $$]");
 
                 my $requests_per_child = $profile->max_requests_per_child;
-                for my $sig ( qw/ TERM INT / ) {
-                    $SIG{$sig} = sub {
-                        debugf("trap signal: $sig");
-                        $requests_per_child = 0;
-                    };
-                }
+                local $SIG{TERM} = sub {
+                    debugf("trap signal: TERM");
+                    $requests_per_child = 0;
+                };
+                local $SIG{INT} = sub {
+                    debugf("trap signal: INT");
+                    exit;
+                };
                 while ( $requests_per_child ) {
                     try {
                         $requests_per_child--;
