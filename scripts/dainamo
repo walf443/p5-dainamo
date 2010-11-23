@@ -1,60 +1,12 @@
 #!perl
 use strict;
 use warnings;
-use Dainamo;
-use Dainamo::Util;
 use lib 'lib';
-use opts;
+use Dainamo::Runner;
 
-opts my $max_workers => { isa => 'Int'},
-    my $daemonize => { isa => 'Bool', default => 0, },
-    my $reload => { isa => 'Bool' },
-    my $config => { isa => 'Str', required => 1 };
-
-my $starter = sub {
-    my $dainamo = Dainamo::Util::load($config);
-    unless ( $dainamo && ref $dainamo && $dainamo->isa('Dainamo') ) {
-        die "Can't load config: $config. you should evaluate Dainamo instance at the end of file"
-    }
-    if ( $max_workers ) {
-        $dainamo->max_workers($max_workers);
-    }
-    die "please set max_workers" if !$dainamo->max_workers;
-
-    if ( defined $daemonize ) {
-        $dainamo->daemonize($daemonize);
-    }
-
-    $dainamo->run;
-};
-
-if ( $reload ) {
-    while ( 1 ) {
-        my $pid = fork;
-        die "Can't fork: $!" unless defined $pid;
-
-        if ( $pid ) {
-            local $0 = "$0: [watcher]";
-            local $SIG{TERM} = sub {
-                kill 'TERM', $pid;
-                wait;
-                exit;
-            };
-            require Filesys::Notify::Simple;
-            my $watcher = Filesys::Notify::Simple->new(['.']);
-            $watcher->wait(sub {
-                warn "file changed. restarting $0";
-                kill 'INT', $pid;
-            });
-            wait;
-        } else {
-            $starter->();
-            exit;
-        }
-    }
-} else {
-    $starter->();
-}
+my $runner = Dainamo::Runner->new;
+$runner->parse_option(@ARGV);
+$runner->run;
 
 __END__
 

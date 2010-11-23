@@ -11,7 +11,7 @@ our $VERSION = '0.01';
 use 5.00800;
 
 has 'max_workers' => (
-    is => 'ro',
+    is => 'rw',
 );
 
 has 'daemonize' => (
@@ -20,7 +20,7 @@ has 'daemonize' => (
 );
 
 has 'log_path' => (
-    is => 'ro',
+    is => 'rw',
 );
 
 has 'log_level' => (
