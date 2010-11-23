@@ -14,7 +14,7 @@ opts my $max_workers => { isa => 'Int'},
 my $starter = sub {
     my $dainamo = Dainamo::Util::load($config);
     unless ( $dainamo && ref $dainamo && $dainamo->isa('Dainamo') ) {
-        die "Can't load config: $config";
+        die "Can't load config: $config. you should evaluate Dainamo instance at the end of file"
     }
     if ( $max_workers ) {
         $dainamo->max_workers($max_workers);

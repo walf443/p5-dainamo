@@ -6,6 +6,7 @@ use Try::Tiny;
 use Parallel::Prefork::SpareWorkers qw/STATUS_IDLE/;
 use Log::Minimal qw/infof warnf critf debugf/;;
 use Proc::Daemon;
+use Dainamo::Util;
 our $VERSION = '0.01';
 use 5.00800;
 
@@ -146,6 +147,29 @@ sub add_profile {
     my ($self, %args) = @_;
 
     push @{ $self->{profiles} }, $args{profile};
+}
+
+
+sub add_profile_group {
+    my ($self, %args) = @_;
+
+    for my $profile ( $args{group}->profiles ) {
+        $self->add_profile(
+            profile => $profile,
+            weight => 1.0
+        );
+    }
+}
+
+sub load_profiles {
+    my ($self, $file) = @_;
+
+    my $group = Dainamo::Util::load($file);
+    unless ( $group && ref $group && $group->isa('Dainamo::ProfileGroup') ) {
+        warn $group;
+        die "Can't load config: $file. you should evaluate Dainamo::ProfileGroup instance at the end of file"
+    }
+    $self->add_profile_group(group => $group);
 }
 
 1;
