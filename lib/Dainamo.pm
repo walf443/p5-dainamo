@@ -166,8 +166,7 @@ sub load_profiles {
 
     my $group = Dainamo::Util::load($file);
     unless ( $group && ref $group && $group->isa('Dainamo::ProfileGroup') ) {
-        warn $group;
-        die "Can't load config: $file. you should evaluate Dainamo::ProfileGroup instance at the end of file"
+        die "Can't load config: $file and take $group. you should evaluate Dainamo::ProfileGroup instance at the end of file."
     }
     $self->add_profile_group(group => $group);
 }
