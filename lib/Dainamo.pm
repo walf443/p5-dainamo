@@ -85,16 +85,24 @@ sub run {
                     HUP  => 'TERM',
                 },
             });
-            for my $sig ( qw/ TERM INT / ) {
-                $SIG{$sig} = sub {
-                    debugf("trap signal: $sig");
-                    infof("start graceful shutdown $0 [pid: $$]");
-                    $pm->signal_all_children($sig);
-                    $pm->wait_all_children;
-                    infof("shutdown $0");
-                    exit;
-                };
-            }
+
+            local $SIG{TERM} = sub {
+                debugf("trap signal: TERM");
+                infof("start graceful shutdown $0 [pid: $$]");
+                $pm->signal_all_children('TERM');
+                $pm->wait_all_children;
+                infof("shutdown $0");
+                exit;
+            };
+
+            local $SIG{INT} = sub {
+                debugf("trap signal: INT");
+                infof("start graceful shutdown $0 [pid: $$]");
+                $pm->signal_all_children('INT');
+                infof("shutdown $0");
+                exit;
+            };
+
             while ( $pm->signal_received ne 'TERM' ) {
                 $pm->start and next;
 
@@ -125,6 +133,7 @@ sub run {
                 $pm->finish;
             }
             $pm->wait_all_children();
+            exit;
         }
     }
     for my $sig ( qw/TERM INT HUP/ ) {
