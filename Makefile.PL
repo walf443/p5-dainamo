@@ -21,6 +21,8 @@ requires 'Mouse';
 requires 'Log::Minimal';
 requires 'Parallel::Prefork';
 
+install_script 'scripts/dainamo';
+
 auto_include;
 auto_set_repository;
 WriteAll;
