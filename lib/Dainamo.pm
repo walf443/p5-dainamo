@@ -97,7 +97,7 @@ sub run {
 
             local $SIG{INT} = sub {
                 debugf("trap signal: INT");
-                infof("start graceful shutdown $0 [pid: $$]");
+                infof("start shutdown $0 [pid: $$]");
                 $pm->signal_all_children('INT');
                 infof("shutdown $0");
                 exit;
