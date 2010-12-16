@@ -4,6 +4,7 @@ use warnings;
 use parent 'Dainamo::Profile';
 use Gearman::Worker;
 use UNIVERSAL::require;
+use Log::Minimal qw/infof/;
 
 sub new {
     my ($class, %args) = @_;
@@ -16,8 +17,11 @@ sub new {
         $worker->use;
 
         $self->{gearman}->register_function($worker => sub {
+            infof("start $worker");
             my $job = shift;
-            $worker->work($job);
+            my $return = $worker->work($job);
+            infof("end $worker");
+            return $return;
         });
     }
 
