@@ -18,9 +18,12 @@ sub parse_option {
     opts my $max_workers => { isa => 'Int'},
         my $daemonize => { isa => 'Bool', default => 0, },
         my $reload => { isa => 'Bool' },
+        my $log_path => { isa => 'Str', },
         my $config => { isa => 'Str', required => 1 };
 
     $self->{max_workers} = $max_workers;
+    $self->{log_path} = $log_path;
+
     $self->{daemonize} = $daemonize;
     $self->{reload} = $reload;
     $self->{config} = $config;
@@ -83,6 +86,14 @@ sub starter {
         $dainamo->max_workers($self->{max_workers});
     }
     die "please set max_workers" if !$dainamo->max_workers;
+
+    if ( defined $self->{log_path} ) {
+        if ( $self->{log_path} eq "STDERR" ) {
+            $dainamo->log_path(undef);
+        } else {
+            $dainamo->log_path($self->{log_path});
+        }
+    }
 
     if ( defined $self->{daemonize} ) {
         $dainamo->daemonize($self->{daemonize});
