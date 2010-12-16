@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use parent 'Dainamo::Profile';
 use Qudo;
+use Log::Minimal qw/infof/;
 
 sub new {
     my ($class, %args) = @_;
@@ -21,6 +22,7 @@ sub qudo {
 sub run {
     my ($self, ) = @_;
 
+    infof("start Dainamo::Profile::Qudo#run()");
     # copied from Qudo's work.
     my $work_delay = $self->qudo->{work_delay};
     unless ( $self->qudo->manager->work_once ) {
