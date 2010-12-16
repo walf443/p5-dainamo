@@ -14,7 +14,8 @@ sub new {
     $self->{gearman} = Gearman::Worker->new;
     $self->{gearman}->job_servers($self->{config}->{job_servers});
     for my $worker ( @{ $self->{config}->{workers} } ) {
-        $worker->use;
+        $worker->use
+            or die $@;
 
         $self->{gearman}->register_function($worker => sub {
             infof("start $worker");
