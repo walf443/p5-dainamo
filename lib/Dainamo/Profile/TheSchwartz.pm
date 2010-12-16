@@ -26,13 +26,21 @@ sub schwartz {
 sub run {
     my ($self, ) = @_;
 
+    debugf("start Dainamo::Profile::TheSchwartz#run()");
     # copied from TheSchwartz's work.
     my $work_delay = $self->{config}->{work_delay} || 5;
     unless ( $self->schwartz->work_once ) {
         $self->{schwartz} = undef; # disconnect while sleep.
+
+        debugf("sleep Dainamo::Profile::TheSchwartz#run()");
+        # exit if SIGTERM in sleep.
+        local $SIG{TERM} = sub {
+            exit;
+        };
         sleep $work_delay;
     }
     $self->{schwartz} = undef;
+    debugf("finish Dainamo::Profile::TheSchwartz#run()");
 }
 
 1;

@@ -28,6 +28,10 @@ sub run {
     unless ( $self->qudo->manager->work_once ) {
         $self->{qudo} = undef; # disconnect while sleep.
         debugf("sleep Dainamo::Profile::Qudo#run()");
+        # exit if SIGTERM in sleep.
+        local $SIG{TERM} = sub {
+            exit;
+        };
         sleep $work_delay;
     }
     $self->{qudo} = undef;
