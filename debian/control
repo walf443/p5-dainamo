@@ -1,0 +1,15 @@
+Source: libdainamo-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 5.0.0)
+Build-Depends-Indep: perl (>= 5.8.8-7etch6)
+Maintainer: Yoshimi <walf443@gmail.com>
+Standards-Version: 3.7.2
+
+Package: libdainamo-perl
+Architecture: all
+Depends: perl
+Description: Dainamo
+ Dainamo
+ .
+ This description was automagically extracted from the module by dh-make-perl.
