@@ -20,7 +20,7 @@ sub new {
         $self->{gearman}->register_function($worker => sub {
             infof("start $worker");
             my $job = shift;
-            my $return = $worker->work($job);
+            my $return = $worker->work_job($job);
             infof("end $worker");
             return $return;
         });
