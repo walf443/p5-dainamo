@@ -10,7 +10,7 @@ sub new {
 
 sub max_requests_per_child {
     my ($self, ) = @_;
-    $self->{max_requests_per_child} || 10;
+    $self->{max_requests_per_child} || 40;
 }
 
 sub inspect {
