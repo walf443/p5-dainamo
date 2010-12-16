@@ -19,10 +19,12 @@ sub parse_option {
         my $daemonize => { isa => 'Bool', default => 0, },
         my $reload => { isa => 'Bool' },
         my $log_path => { isa => 'Str', },
+        my $log_level => { isa => 'Str' },
         my $config => { isa => 'Str', required => 1 };
 
     $self->{max_workers} = $max_workers;
     $self->{log_path} = $log_path;
+    $self->{log_level} = $log_level;
 
     $self->{daemonize} = $daemonize;
     $self->{reload} = $reload;
@@ -93,6 +95,9 @@ sub starter {
         } else {
             $dainamo->log_path($self->{log_path});
         }
+    }
+    if ( defined $self->{log_level} ) {
+        $dainamo->{log_level} = $self->{log_level};
     }
 
     if ( defined $self->{daemonize} ) {
