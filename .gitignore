@@ -9,3 +9,7 @@ Makefile.old
 nytprof.out
 MANIFEST.bak
 *.sw[po]
+build-stamp
+install-stamp
+debian/libdainamo-perl
+debian/libdainamo-perl.substvars
