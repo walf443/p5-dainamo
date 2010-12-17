@@ -67,12 +67,24 @@ sub watcher {
         wait;
         exit;
     };
-    require Filesys::Notify::Simple;
-    my $watcher = Filesys::Notify::Simple->new(['.']);
-    $watcher->wait(sub {
-        warn "file changed. restarting $0";
-        kill 'INT', $pid;
-    });
+    eval {
+        require Filesys::Notify::Simple;
+    };
+    if ( $@ ) {
+        warn "Can't find Filesys::Notify::Simple. please install.";
+        $SIG{TERM}->();
+    }
+    eval {
+        my $watcher = Filesys::Notify::Simple->new(['.']);
+        $watcher->wait(sub {
+            warn "file changed. restarting $0";
+            kill 'INT', $pid;
+        });
+    };
+    if ( $@ ) {
+        warn "watcher catche error: $@";
+        $SIG{TERM}->();
+    }
     wait;
 }
 
