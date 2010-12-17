@@ -47,6 +47,8 @@ subtest 'about load_profiles' => sub {
         
         my $profile = pop @{ $dainamo->profiles };
         isa_ok($profile, 'Dainamo::Profile');
+
+        done_testing;
     };
 
     subtest 'in case not return ProfileGroup instance' => sub {
