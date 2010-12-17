@@ -20,11 +20,18 @@ sub parse_option {
         my $reload => { isa => 'Bool' },
         my $log_path => { isa => 'Str', },
         my $log_level => { isa => 'Str' },
+        my $watch_path => { isa => 'Str' }, # FIXME: ほんとはPlack::Runnerにそろえたい(Reload)が、opts.pmの制限っぽい
         my $config => { isa => 'Str', required => 1 };
 
     $self->{max_workers} = $max_workers;
     $self->{log_path} = $log_path;
     $self->{log_level} = $log_level;
+    if ( $watch_path ) {
+        my @watch_paths = split(/,/, $watch_path);
+        $self->{watch_path} = \@watch_paths;
+    } else {
+        $self->{watch_path} = ['.'];
+    }
 
     $self->{daemonize} = $daemonize;
     $self->{reload} = $reload;
@@ -75,7 +82,7 @@ sub watcher {
         $SIG{TERM}->();
     }
     eval {
-        my $watcher = Filesys::Notify::Simple->new(['.']);
+        my $watcher = Filesys::Notify::Simple->new($self->{watch_path});
         $watcher->wait(sub {
             warn "file changed. restarting $0";
             kill 'INT', $pid;
