@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Mouse;
 use Try::Tiny;
-use Parallel::Prefork::SpareWorkers qw/STATUS_IDLE/;
+use Parallel::Prefork;
 use Log::Minimal qw/infof warnf critf debugf/;;
 use Proc::Daemon;
 use Dainamo::Util;
@@ -76,9 +76,8 @@ sub run {
         } else {
             $0 = "$prog_name: [manager] $profile";
             infof("worker manager process: $profile [pid: $$] max_workers: $max_workers");
-            my $pm = Parallel::Prefork::SpareWorkers->new({
+            my $pm = Parallel::Prefork->new({
                 max_workers => $max_workers,
-                min_spare_workers => $max_workers,
                 trap_signals => {
                     INT  => 'INT',
                     TERM => 'TERM',
