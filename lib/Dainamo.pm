@@ -120,6 +120,9 @@ sub run {
                     debugf("trap signal: INT");
                     exit;
                 };
+                local $SIG{__WARN__} = sub {
+                    warnf(@_);
+                };
                 while ( $requests_per_child ) {
                     try {
                         $requests_per_child--;
