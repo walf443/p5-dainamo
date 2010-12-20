@@ -41,6 +41,7 @@ install-stamp: build-stamp
 	[ ! -d $(TMP)/usr/lib/perl5 ] || \
 		rmdir --ignore-fail-on-non-empty --parents --verbose \
 		$(TMP)/usr/lib/perl5
+	cp debian/dainamo-starter $(TMP)/usr/bin/
 	touch $@
 
 binary-arch:

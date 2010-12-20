@@ -1,0 +1,56 @@
+#! /bin/sh
+#
+# skeleton      example file to build /etc/init.d/ scripts.
+#                 This file should be used to construct scripts for /etc/init.d.
+#
+#                 Written by Miquel van Smoorenburg <miquels@cistron.nl>.
+#                 Modified for Debian
+#                 by Ian Murdock <imurdock@gnu.ai.mit.edu>.
+#
+# Version:      @(#)skeleton  1.9  26-Feb-2001  miquels@cistron.nl
+#
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAINAMO_CMD=/usr/bin/dainamo
+DAINAMO_OPTION='--config=/etc/dainamo.pl'
+NAME=dainamod
+DESC=dainamod
+PIDFILE=/tmp/$NAME-$USER.pid
+
+set -e
+
+case "$1" in
+  start)
+         echo -n "Starting $DESC: "
+
+         if [ -e $PIDFILE ]
+                  then
+
+                  if [ -d /proc/`cat $PIDFILE`/ ]
+                  then
+
+                           echo "$NAME already running."
+                           exit 0;
+                  else
+                          rm -f $PIDFILE
+                  fi
+         fi
+
+         start-stop-daemon --start -p $PIDFILE -m -b --name $NAME --exec $DAINAMO_CMD -- $DAINAMO_OPTION
+         echo "$NAME."
+         ;;
+  stop)
+         echo -n "Stopping $DESC: "
+         kill -TERM `cat $PIDFILE`
+         echo "$NAME."
+         rm -f $PIDFILE
+         ;;
+  *)
+         N=/etc/init.d/$NAME
+         echo "Usage: $N {start|stop}" >&2
+         exit 1
+         ;;
+esac
+
+exit 0
+
