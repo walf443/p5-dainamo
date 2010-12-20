@@ -29,3 +29,38 @@ sub run {
 }
 
 1;
+
+__END__
+
+=head1 NAME
+
+Dainamo::Profile - base class of Profile.
+
+=head1 SYNOPSIS
+
+    use Dainamo;
+    use Dainamo::Profile;
+
+    my $dainamo = Dainamo->new(...);
+    my $profile = Dainamo::Profile->new(
+        name => "Proj1::Worker::XXX", # profile name. you can show with "ps | grep dainamo"
+        max_requests_per_child => 10, # child is die  when it called over $max_requests_per_child times. It's prevent to leak memory seriously. default is 40.
+        weight => 3,
+        config => { 
+            # ...,
+        },
+    );
+    
+    $dainamo->add_profile(profile => $profile);
+
+
+    # implement your custom Profile.
+
+    package Dainamo::Profile::HogeHoge;
+    use parent(Dainamo::Profile);
+
+    sub run {
+        # do work a job. arguments are nothing.
+    }
+
+

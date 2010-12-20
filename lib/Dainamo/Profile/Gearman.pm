@@ -38,3 +38,37 @@ sub run {
 }
 
 1;
+
+__END__
+
+=head2 NAME
+
+Dainamo::Profile::Gearman
+
+
+=head2 SYNOPSIS
+
+    use Dainamo::Profile::Gearman;
+    my $dainamo = Dainamo::Profile::Gearman->new(
+        job_servers => [ '127.0.0.1:7003' ],
+        workers => [ 'Proj1::Worker::Gearman::HogeHoge' ],
+    );
+
+    # your worker class is called by followings:
+    #   Proj1::Worker::Gearman::HogeHoge->work_job($job);
+    #   $job is a Gearman::Job.
+    # so your worker implement is like that:
+    
+    package Proj1::Worker::Gearman::HogeHoge;
+    use Storable;
+
+    sub work_job {
+        my ($class, $job) = @_;
+        my $args = Storable::thaw($job->arg);
+        my $result = $class->work($job);
+        return Storable::nfreeze($result);
+    }
+
+
+
+
