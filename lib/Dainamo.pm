@@ -76,12 +76,6 @@ sub run {
 
 }
 
-sub add_profile {
-    my ($self, %args) = @_;
-
-    push @{ $self->{profiles} }, $args{profile};
-}
-
 sub _start_child {
     my ($self, $profile) = @_;
     $0 = "$PROGNAME: [child] $profile";
@@ -174,6 +168,12 @@ sub output_log {
     } else {
         print STDERR $format;
     }
+}
+
+sub add_profile {
+    my ($self, %args) = @_;
+
+    push @{ $self->{profiles} }, $args{profile};
 }
 
 sub add_profile_group {
