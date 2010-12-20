@@ -165,6 +165,7 @@ sub _start_manager {
     $self->update_scoreboard({
         type => 'manager',
         profile_name => $profile->inspect,
+        max_workers => $max_workers,
         status => 'init',
     });
     $0 = "$PROGNAME: [manager] $profile";
