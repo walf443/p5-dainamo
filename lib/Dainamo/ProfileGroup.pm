@@ -22,3 +22,23 @@ sub add_profile {
 }
 
 1;
+
+__END__
+
+=head2 NAME
+
+Dainamo::ProfileGroup
+
+=head2 SYNOPSIS
+
+    use strict;
+    use warnings;
+    use Dainamo::ProfileGroup;
+
+    my $group = Dainamo::ProfileGroup->new;
+    $group->add_profile(profile => Dainamo::Profile->new(
+        name => 'hoge',
+        config => { #...
+        },
+    ));
+
