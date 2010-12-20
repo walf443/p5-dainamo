@@ -116,7 +116,7 @@ sub run {
         $SIG{$sig} = sub {
             debugf("trap signal: $sig");
             if ( $sig ne 'HUP' ) {
-                $self->update_scoreboard({ status => 'waiting' });
+                $self->update_scoreboard({ status => 'finish' });
             }
             for my $pid ( keys %{ $child_pid_of } ) {
                 kill $sig, $pid;
@@ -150,7 +150,7 @@ sub _start_child {
         debugf("trap signal: TERM");
         $requests_per_child = 0;
         $self->update_scoreboard({
-            status => 'waiting',
+            status => 'finish',
         });
     };
     local $SIG{INT} = sub {
@@ -202,7 +202,7 @@ sub _start_manager {
         debugf("trap signal: TERM");
         infof("start graceful shutdown $0 [pid: $$]");
         $pm->signal_all_children('TERM');
-        $self->update_scoreboard({ status => 'waiting' });
+        $self->update_scoreboard({ status => 'finish' });
         $pm->wait_all_children;
         infof("shutdown $0");
         exit;
@@ -217,13 +217,13 @@ sub _start_manager {
         exit;
     };
 
-    $self->update_scoreboard({ status => 'running' });
+    $self->update_scoreboard({ status => 'waiting' });
     while ( $pm->signal_received ne 'TERM' ) {
         $pm->start and next;
         $self->_start_child($profile);
         $pm->finish;
     }
-    $self->update_scoreboard({ status => 'waiting' });
+    $self->update_scoreboard({ status => 'finish' });
     $pm->wait_all_children();
     exit;
 }
