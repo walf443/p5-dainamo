@@ -145,9 +145,15 @@ sub _start_child {
     local $SIG{TERM} = sub {
         debugf("trap signal: TERM");
         $requests_per_child = 0;
+        $self->update_scoreboard({
+            status => 'waiting',
+        });
     };
     local $SIG{INT} = sub {
         debugf("trap signal: INT");
+        $self->update_scoreboard({
+            status => 'finish',
+        });
         exit;
     };
     local $SIG{__WARN__} = sub {
@@ -163,6 +169,9 @@ sub _start_child {
         };
     }
 
+    $self->update_scoreboard({
+        status => 'finish',
+    });
 }
 
 sub _start_manager {
@@ -189,6 +198,7 @@ sub _start_manager {
         debugf("trap signal: TERM");
         infof("start graceful shutdown $0 [pid: $$]");
         $pm->signal_all_children('TERM');
+        $self->update_scoreboard({ status => 'waiting' });
         $pm->wait_all_children;
         infof("shutdown $0");
         exit;
@@ -202,11 +212,13 @@ sub _start_manager {
         exit;
     };
 
+    $self->update_scoreboard({ status => 'running' });
     while ( $pm->signal_received ne 'TERM' ) {
         $pm->start and next;
         $self->_start_child($profile);
         $pm->finish;
     }
+    $self->update_scoreboard({ status => 'waiting' });
     $pm->wait_all_children();
     exit;
 }
