@@ -13,6 +13,7 @@ sub new {
 
     $self->{gearman} = Gearman::Worker->new;
     $self->{gearman}->job_servers($self->{config}->{job_servers});
+    $self->{gearman}->prefix($self->{config}->{prefix}) if $self->{config}->{prefix};
     for my $worker ( @{ $self->{config}->{workers} } ) {
         $worker->use
             or die $@;
@@ -51,6 +52,7 @@ Dainamo::Profile::Gearman
     use Dainamo::Profile::Gearman;
     my $dainamo = Dainamo::Profile::Gearman->new(
         job_servers => [ '127.0.0.1:7003' ],
+        prefix => "Proj1",
         workers => [ 'Proj1::Worker::Gearman::HogeHoge' ],
     );
 
