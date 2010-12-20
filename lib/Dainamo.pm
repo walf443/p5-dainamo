@@ -4,6 +4,7 @@ use warnings;
 use Mouse;
 use Try::Tiny;
 use Parallel::Prefork;
+use Parallel::Scoreboard;
 use Log::Minimal qw/infof warnf critf debugf/;;
 use Proc::Daemon;
 use Dainamo::Util;
@@ -33,12 +34,49 @@ has 'profiles' => (
     default => sub { [] },
 );
 
+has 'scoreboard_path' => (
+    is => 'ro',
+    default => sub {
+        "/tmp/dainamo/$$/",
+    },
+);
+
 my $PROGNAME = $0;
+
+sub scoreboard {
+    my ($self, ) = @_;
+
+    $self->{__scoreboard} ||= sub {
+        system(sprintf("mkdir -p %s", $self->scoreboard_path)); # FIXME: support win32
+        Parallel::Scoreboard->new(base_dir => $self->scoreboard_path);
+    }->();
+}
+
+sub update_scoreboard {
+    my ($self, $hashref) = @_;
+
+    my @data;
+    for my $key ( sort { $a cmp $b } keys %{ $hashref } ) {
+        my $escaped_key = $key;
+        $escaped_key =~ s/\t/ /g;
+        my $escaped_value = $hashref->{$key};
+        $escaped_value =~ s/\t/ /g;
+        push @data, $escaped_key, $escaped_value;
+    }
+    my $message = join "\t", @data; # data is TSV format.
+    $self->scoreboard->update($message);
+}
 
 sub run {
     my ($self, ) = @_;
 
     Proc::Daemon::Init if $self->daemonize;
+
+    $self->scoreboard; # create scoreboard instance.
+    $self->update_scoreboard({
+        type => 'master',
+        status => 'init',
+    });
 
     local $ENV{LM_DEBUG} = 1 if $self->log_level eq 'debug';
     local $Log::Minimal::PRINT = sub {
@@ -86,6 +124,12 @@ sub run {
 
 sub _start_child {
     my ($self, $profile) = @_;
+
+    $self->update_scoreboard({
+        type => 'child',
+        profile_name => $profile->inspect,
+        status => 'init',
+    });
     $0 = "$PROGNAME: [child] $profile";
     srand; # It's trap to call rand in child process. so, initialized.
 
@@ -118,6 +162,11 @@ sub _start_child {
 sub _start_manager {
     my ($self, $profile, $max_workers) = @_;
 
+    $self->update_scoreboard({
+        type => 'manager',
+        profile_name => $profile->inspect,
+        status => 'init',
+    });
     $0 = "$PROGNAME: [manager] $profile";
     infof("worker manager process: $profile [pid: $$] max_workers: $max_workers");
     my $pm = Parallel::Prefork->new({
