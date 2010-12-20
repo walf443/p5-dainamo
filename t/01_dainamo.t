@@ -16,7 +16,7 @@ subtest 'about new' => sub {
 subtest 'about add_profile ' => sub {
     my $dainamo = Dainamo->new;
     is(scalar @{ $dainamo->profiles }, 0, '$dainamo should have no profiles');
-    $dainamo->add_profile(profile => Dainamo::Profile->new, weight => 1.0);
+    $dainamo->add_profile(profile => Dainamo::Profile->new);
     my $profile = pop @{ $dainamo->profiles };
     isa_ok($profile, 'Dainamo::Profile');
 
@@ -26,7 +26,7 @@ subtest 'about add_profile ' => sub {
 subtest 'about add_profile_group' => sub {
     my $dainamo = Dainamo->new;
     my $profile_group = Dainamo::ProfileGroup->new;
-    $profile_group->add_profile(profile => Dainamo::Profile->new, weight => 1.0);
+    $profile_group->add_profile(profile => Dainamo::Profile->new);
     is(scalar @{ $dainamo->profiles }, 0, '$dainamo should have no profiles');
     $dainamo->add_profile_group(group => $profile_group);
 

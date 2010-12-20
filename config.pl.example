@@ -41,36 +41,36 @@ $dainamo->add_profile(
     profile => Dainamo::Profile::Gearman->new(
         name => 'hogehoge',
         max_requests_per_child => 1,
+        weight => 1.0,
         config => +{
             job_servers => '127.0.0.1',
             workers => [qw( HogeHoge::Worker::Gearman::Double )],
         },
     ),
-    weight => 1.0,
 );
 
 $dainamo->add_profile(
     profile => Dainamo::Profile::Gearman->new(
         name => 'hogehoge',
         max_requests_per_child => 2,
+        weight => 1.0,
         config => +{
             job_servers => '127.0.0.1',
             workers => [qw( HogeHoge::Worker::Gearman::Double )],
         },
     ),
-    weight => 1.0,
 );
 
 $dainamo->add_profile(
     profile => Dainamo::Profile::Gearman->new(
         name => 'fugafuga',
         max_requests_per_child => 3,
+        weight => 1.0,
         config => +{
             job_servers => '127.0.0.1',
             workers => [qw( HogeHoge::Worker::Gearman::Sqrt )],
         }
     ),
-    weight => 1.0,
 );
 
 $dainamo; # last line

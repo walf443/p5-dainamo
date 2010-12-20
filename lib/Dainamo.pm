@@ -48,10 +48,18 @@ sub run {
     infof("starting $0 [pid: $$]");
 
     my $child_pid_of = {};
+
+    my $total_weight = 0;
+    my $num_profiles = 0;
     for my $profile ( @{ $self->{profiles} } ) {
-        my $num_profiles = @{ $self->{profiles} };
-        # TODO: consider weight.
-        my $max_workers = int($self->max_workers / $num_profiles ) || 1; # at least over 1.
+        $total_weight += $profile->weight;
+        $num_profiles++;
+    }
+    # 100
+    #   hoge: 1.0: 33
+    #   fuga: 2.0: 66 ( 100 / 3.0 ) * 2.0 = 33.33 * 2 
+    for my $profile ( @{ $self->{profiles} } ) {
+        my $max_workers = int($self->max_workers * $profile->weight / $total_weight ) || 1; # at least over 1.
         my $pid = fork;
         die "Can't fork: $!" unless defined $pid;
         if ( $pid ) {
@@ -182,7 +190,6 @@ sub add_profile_group {
     for my $profile ( $args{group}->profiles ) {
         $self->add_profile(
             profile => $profile,
-            weight => 1.0
         );
     }
 }
@@ -218,7 +225,6 @@ Dainamo - manage worker processes.
             workers => [qw( Project1::Worker::Job1 Project1::Worker::Job2 )],
         }
       ),
-      weight  => 1.0,
   );
   if ( $ENV{DEVELOPMENT} ) {
   } else {
