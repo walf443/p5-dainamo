@@ -33,6 +33,8 @@ has 'profiles' => (
     default => sub { [] },
 );
 
+my $PROGNAME = $0;
+
 sub run {
     my ($self, ) = @_;
 
@@ -40,31 +42,12 @@ sub run {
 
     local $ENV{LM_DEBUG} = 1 if $self->log_level eq 'debug';
     local $Log::Minimal::PRINT = sub {
-        my ($time, $type, $message, $trace) = @_;
-        my $format = "[$time] [$type] [$$] $message at $trace\n";
-        if ( $self->log_path ) {
-            my $fh;
-            # you can specify log_path like followings:
-            #   log_path => qq{| /usr/sbin/cronolog "/var/log/dainamo/%Y%m%d.log"}
-            if ( $self->log_path =~ /^\|\s+/ ) {
-                open $fh, $self->log_path ## no critic
-                    or die qq|Can't open "@{[ $self->log_path ]}"|;
-            } else {
-                open $fh, '>>', $self->log_path
-                    or die qq|Can't open "@{[ $self->log_path ]}"|;
-            }
-
-            print $fh $format;
-            close $fh;
-        } else {
-            print STDERR $format;
-        }
+        $self->output_log(@_);
     };
 
     infof("starting $0 [pid: $$]");
 
     my $child_pid_of = {};
-    my $prog_name = $0;
     for my $profile ( @{ $self->{profiles} } ) {
         my $num_profiles = @{ $self->{profiles} };
         # TODO: consider weight.
@@ -74,68 +57,7 @@ sub run {
         if ( $pid ) {
             $child_pid_of->{$pid} = 1;
         } else {
-            $0 = "$prog_name: [manager] $profile";
-            infof("worker manager process: $profile [pid: $$] max_workers: $max_workers");
-            my $pm = Parallel::Prefork->new({
-                max_workers => $max_workers,
-                trap_signals => {
-                    INT  => 'INT',
-                    TERM => 'TERM',
-                    HUP  => 'TERM',
-                },
-            });
-
-            local $SIG{TERM} = sub {
-                debugf("trap signal: TERM");
-                infof("start graceful shutdown $0 [pid: $$]");
-                $pm->signal_all_children('TERM');
-                $pm->wait_all_children;
-                infof("shutdown $0");
-                exit;
-            };
-
-            local $SIG{INT} = sub {
-                debugf("trap signal: INT");
-                infof("start shutdown $0 [pid: $$]");
-                $pm->signal_all_children('INT');
-                infof("shutdown $0");
-                exit;
-            };
-
-            while ( $pm->signal_received ne 'TERM' ) {
-                $pm->start and next;
-
-                $0 = "$prog_name: [child] $profile";
-                srand; # It's trap to call rand in child process. so, initialized.
-
-                debugf("child process: $profile [pid: $$]");
-
-                my $requests_per_child = $profile->max_requests_per_child;
-                local $SIG{TERM} = sub {
-                    debugf("trap signal: TERM");
-                    $requests_per_child = 0;
-                };
-                local $SIG{INT} = sub {
-                    debugf("trap signal: INT");
-                    exit;
-                };
-                local $SIG{__WARN__} = sub {
-                    warnf(@_);
-                };
-                while ( $requests_per_child ) {
-                    try {
-                        $requests_per_child--;
-                        $profile->run;
-                    } catch {
-                        my $error = $_;
-                        critf($error);
-                    };
-                }
-
-                $pm->finish;
-            }
-            $pm->wait_all_children();
-            exit;
+            $self->_start_manager($profile, $max_workers);
         }
     }
     for my $sig ( qw/TERM INT HUP/ ) {
@@ -160,6 +82,99 @@ sub add_profile {
     push @{ $self->{profiles} }, $args{profile};
 }
 
+sub _start_child {
+    my ($self, $profile) = @_;
+    $0 = "$PROGNAME: [child] $profile";
+    srand; # It's trap to call rand in child process. so, initialized.
+
+    debugf("child process: $profile [pid: $$]");
+
+    my $requests_per_child = $profile->max_requests_per_child;
+    local $SIG{TERM} = sub {
+        debugf("trap signal: TERM");
+        $requests_per_child = 0;
+    };
+    local $SIG{INT} = sub {
+        debugf("trap signal: INT");
+        exit;
+    };
+    local $SIG{__WARN__} = sub {
+        warnf(@_);
+    };
+    while ( $requests_per_child ) {
+        try {
+            $requests_per_child--;
+            $profile->run;
+        } catch {
+            my $error = $_;
+            critf($error);
+        };
+    }
+
+}
+
+sub _start_manager {
+    my ($self, $profile, $max_workers) = @_;
+
+    $0 = "$PROGNAME: [manager] $profile";
+    infof("worker manager process: $profile [pid: $$] max_workers: $max_workers");
+    my $pm = Parallel::Prefork->new({
+        max_workers => $max_workers,
+        trap_signals => {
+            INT  => 'INT',
+            TERM => 'TERM',
+            HUP  => 'TERM',
+        },
+    });
+
+    local $SIG{TERM} = sub {
+        debugf("trap signal: TERM");
+        infof("start graceful shutdown $0 [pid: $$]");
+        $pm->signal_all_children('TERM');
+        $pm->wait_all_children;
+        infof("shutdown $0");
+        exit;
+    };
+
+    local $SIG{INT} = sub {
+        debugf("trap signal: INT");
+        infof("start shutdown $0 [pid: $$]");
+        $pm->signal_all_children('INT');
+        infof("shutdown $0");
+        exit;
+    };
+
+    while ( $pm->signal_received ne 'TERM' ) {
+        $pm->start and next;
+        $self->_start_child($profile);
+        $pm->finish;
+    }
+    $pm->wait_all_children();
+    exit;
+}
+
+sub output_log {
+    my ($self, $time, $type, $message, $trace) = @_;
+
+    my $format = "[$time] [$type] [$$] $message at $trace\n";
+    if ( $self->log_path ) {
+        my $fh;
+        # you can specify log_path like followings:
+        #   log_path => qq{| /usr/sbin/cronolog "/var/log/dainamo/%Y%m%d.log"}
+        if ( $self->log_path =~ /^\|\s+/ ) {
+            open $fh, $self->log_path ## no critic
+                or die qq|Can't open "@{[ $self->log_path ]}"|;
+        } else {
+            open $fh, '>>', $self->log_path
+                or die qq|Can't open "@{[ $self->log_path ]}"|;
+        }
+
+        print $fh $format;
+        close $fh;
+    } else {
+        print STDERR $format;
+    }
+}
 
 sub add_profile_group {
     my ($self, %args) = @_;
