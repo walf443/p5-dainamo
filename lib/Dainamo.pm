@@ -56,7 +56,12 @@ sub update_scoreboard {
     my ($self, $hashref) = @_;
 
     my @data;
-    for my $key ( sort { $a cmp $b } keys %{ $hashref } ) {
+    $self->{__scoreboard_status} ||= {};
+    $self->{__scoreboard_status}->{$$} ||= {};
+    for my $key ( keys %{ $hashref } ) {
+        $self->{__scoreboard_status}->{$$}->{$key} = $hashref->{$key};
+    }
+    for my $key ( sort { $a cmp $b } keys %{ $self->{__scoreboard_status}->{$$} } ) {
         my $escaped_key = $key;
         $escaped_key =~ s/\t/ /g;
         my $escaped_value = $hashref->{$key};
@@ -76,6 +81,7 @@ sub run {
     $self->update_scoreboard({
         type => 'master',
         status => 'init',
+        max_workers => $self->max_workers,
     });
 
     local $ENV{LM_DEBUG} = 1 if $self->log_level eq 'debug';
