@@ -115,11 +115,15 @@ sub run {
     for my $sig ( qw/TERM INT HUP/ ) {
         $SIG{$sig} = sub {
             debugf("trap signal: $sig");
+            if ( $sig ne 'HUP' ) {
+                $self->update_scoreboard({ status => 'waiting' });
+            }
             for my $pid ( keys %{ $child_pid_of } ) {
                 kill $sig, $pid;
             }
         };
     }
+    $self->update_scoreboard({ status => 'running' });
     while ( keys %{ $child_pid_of } ) {
         my $pid = wait;
         delete $child_pid_of->{$pid};
@@ -208,6 +212,7 @@ sub _start_manager {
         debugf("trap signal: INT");
         infof("start shutdown $0 [pid: $$]");
         $pm->signal_all_children('INT');
+        $self->update_scoreboard({ status => 'finish' });
         infof("shutdown $0");
         exit;
     };
