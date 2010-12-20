@@ -64,7 +64,7 @@ sub update_scoreboard {
     for my $key ( sort { $a cmp $b } keys %{ $self->{__scoreboard_status}->{$$} } ) {
         my $escaped_key = $key;
         $escaped_key =~ s/\t/ /g;
-        my $escaped_value = $hashref->{$key};
+        my $escaped_value = $self->{__scoreboard_status}->{$$}->{$key};
         $escaped_value =~ s/\t/ /g;
         push @data, $escaped_key, $escaped_value;
     }
