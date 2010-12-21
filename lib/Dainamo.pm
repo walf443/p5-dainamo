@@ -55,21 +55,8 @@ sub scoreboard {
 sub update_scoreboard {
     my ($self, $hashref) = @_;
 
-    my @data;
     $self->{__scoreboard_status} ||= {};
-    $self->{__scoreboard_status}->{$$} ||= {};
-    for my $key ( keys %{ $hashref } ) {
-        $self->{__scoreboard_status}->{$$}->{$key} = $hashref->{$key};
-    }
-    for my $key ( sort { $a cmp $b } keys %{ $self->{__scoreboard_status}->{$$} } ) {
-        my $escaped_key = $key;
-        $escaped_key =~ s/\t/ /g;
-        my $escaped_value = $self->{__scoreboard_status}->{$$}->{$key};
-        $escaped_value =~ s/\t/ /g;
-        push @data, $escaped_key, $escaped_value;
-    }
-    my $message = join "\t", @data; # data is TSV format.
-    $self->scoreboard->update($message);
+    return Dainamo::Util::update_scoreboard($self->scoreboard, $self->{__scoreboard_status}, $hashref);
 }
 
 sub run {

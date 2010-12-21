@@ -27,4 +27,24 @@ sub load {
     return $dainamo;
 }
 
+sub update_scoreboard {
+    my ($scoreboard, $cache_hashref, $value_hashref) = @_;
+
+    $cache_hashref->{$$} ||= {};
+    for my $key ( keys %{ $value_hashref } ) {
+        $cache_hashref->{$$}->{$key} = $value_hashref->{$key};
+    }
+
+    my @data;
+    for my $key ( sort { $a cmp $b } keys %{ $cache_hashref->{$$} } ) {
+        my $escaped_key = $key;
+        $escaped_key =~ s/\t/ /g;
+        my $escaped_value = $cache_hashref->{$$}->{$key};
+        $escaped_value =~ s/\t/ /g;
+        push @data, $escaped_key, $escaped_value;
+    }
+    my $message = join "\t", @data; # data is TSV format.
+    $scoreboard->update($message);
+}
+
 1;
