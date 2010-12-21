@@ -7,6 +7,8 @@ use Parallel::Prefork;
 use Parallel::Scoreboard;
 use Log::Minimal qw/infof warnf critf debugf/;;
 use Proc::Daemon;
+use Plack::Handler::HTTP::Server::PSGI;
+use Plack::Builder;
 use Dainamo::Util;
 our $VERSION = '0.01';
 use 5.00800;
@@ -79,6 +81,14 @@ sub run {
     infof("starting $0 [pid: $$]");
 
     my $child_pid_of = {};
+
+    my $admin_port_pid = fork();
+    die "Can't fork: $!" unless defined $admin_port_pid;
+    if ( $admin_port_pid ) {
+        $child_pid_of->{$admin_port_pid}++;
+    } else {
+        $self->_start_admin_server;
+    }
 
     my $total_weight = 0;
     my $num_profiles = 0;
@@ -213,6 +223,31 @@ sub _start_manager {
     $self->update_scoreboard({ status => 'finish' });
     $pm->wait_all_children();
     exit;
+}
+
+sub _start_admin_server {
+    my ($self, ) = @_;
+
+    $0 = "$PROGNAME: [admin]";
+    my $server = Plack::Handler::HTTP::Server::PSGI->new(
+        host => '127.0.0.1', # TODO can handle local network.
+        port => '10076', # dai na mo
+    );
+
+    my $app = sub {
+        my $env = shift;
+
+        return $self->_admin_server_app($env);
+    };
+    use Plack::Middleware::ContentLength;
+    $app = Plack::Middleware::ContentLength->wrap($app);
+    $server->run($app);
+}
+
+sub _admin_server_app {
+    my ($self, $env) = @_;
+
+    return [404, [], ["not found"]];
 }
 
 sub output_log {
