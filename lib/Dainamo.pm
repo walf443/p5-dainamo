@@ -10,6 +10,7 @@ use Proc::Daemon;
 use Plack::Handler::HTTP::Server::PSGI;
 use Plack::Builder;
 use Dainamo::Util;
+use Encode;
 our $VERSION = '0.01';
 use 5.00800;
 
@@ -246,8 +247,28 @@ sub _start_admin_server {
 
 sub _admin_server_app {
     my ($self, $env) = @_;
+    my $class = ref $self;
+
+    if ( $env->{PATH_INFO} =~ qr{^/rcp/([^/]+)} ) {
+        my $action = $1;
+        my $method_name = "_admin_action_$1";
+        if ( $self->can($method_name) ) {
+            return $self->$method_name($env);
+        }
+    }
 
     return [404, [], ["not found"]];
+}
+
+sub _admin_action_scoreboard {
+    my ($self, ) = @_;
+    my $result = "";
+
+    my $stats = $self->scoreboard->read_all();
+    for my $pid ( sort { $a <=> $b } keys %$stats ) {
+        $result .= sprintf("pid\t%s\t%s\n", $pid, $stats->{$pid});
+    }
+    return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], [$result]];
 }
 
 sub output_log {
