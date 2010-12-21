@@ -260,6 +260,9 @@ sub _admin_server_app {
     return [404, [], ["not found"]];
 }
 
+# return scoreboard infomation
+# if you accessed by /rcp/scoreboard?type=(master|manager|child)
+# you can filter information by type.
 sub _admin_action_scoreboard {
     my ($self, $env) = @_;
     my $result = "";
@@ -270,6 +273,18 @@ sub _admin_action_scoreboard {
         next unless $env->{QUERY_STRING} =~ /type=([^&]+)/ && $message =~ /\btype\t$1\b/;
         $result .= sprintf("pid\t%s\t%s\n", $pid, $message);
     }
+    return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], [$result]];
+}
+
+# return manager information that defined before running.
+sub _admin_action_manager {
+    my ($self, $env) = @_;
+
+    my $result = "";
+    for my $profile ( @{ $self->{profiles} } ) {
+        $result .= sprintf("profile_name\t%s\tmax_workers\n", $profile->inspect);
+    }
+
     return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], [$result]];
 }
 
