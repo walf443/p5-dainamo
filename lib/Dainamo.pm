@@ -259,7 +259,7 @@ sub _admin_server_app {
         my $action = $1;
         my $method_name = "_admin_action_$1";
         if ( $self->can($method_name) ) {
-            return $self->$method_name($env);
+             return $self->$method_name($env);
         }
     }
 
@@ -276,7 +276,9 @@ sub _admin_action_scoreboard {
     my $stats = $self->scoreboard->read_all();
     for my $pid ( sort { $a <=> $b } keys %$stats ) {
         my $message = $stats->{$pid};
-        next unless $env->{QUERY_STRING} =~ /type=([^&]+)/ && $message =~ /\btype\t$1\b/;
+        if ( $env->{QUERY_STRING} =~ /type=([^&]+)/ ) {
+            next unless $message =~ /\btype\t$1\b/;
+        }
         $result .= sprintf("pid\t%s\t%s\n", $pid, $message);
     }
     return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], [$result]];
