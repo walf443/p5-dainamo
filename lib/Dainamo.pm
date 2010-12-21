@@ -261,12 +261,14 @@ sub _admin_server_app {
 }
 
 sub _admin_action_scoreboard {
-    my ($self, ) = @_;
+    my ($self, $env) = @_;
     my $result = "";
 
     my $stats = $self->scoreboard->read_all();
     for my $pid ( sort { $a <=> $b } keys %$stats ) {
-        $result .= sprintf("pid\t%s\t%s\n", $pid, $stats->{$pid});
+        my $message = $stats->{$pid};
+        next unless $env->{QUERY_STRING} =~ /type=([^&]+)/ && $message =~ /\btype\t$1\b/;
+        $result .= sprintf("pid\t%s\t%s\n", $pid, $message);
     }
     return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], [$result]];
 }
