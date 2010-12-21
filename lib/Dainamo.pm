@@ -96,6 +96,8 @@ sub run {
         my $max_workers = int($self->max_workers * $profile->weight / $total_weight ) || 1; # at least over 1.
         my $pid = fork;
         die "Can't fork: $!" unless defined $pid;
+        $self->{manager_map} ||= {};
+        $self->{manager_map}->{$pid} = { profile => $profile, max_workers => $max_workers };
         if ( $pid ) {
             $child_pid_of->{$pid} = 1;
         } else {
@@ -285,8 +287,9 @@ sub _admin_action_manager {
     my ($self, $env) = @_;
 
     my $result = "";
-    for my $profile ( @{ $self->{profiles} } ) {
-        $result .= sprintf("profile_name\t%s\tmax_workers\n", $profile->inspect);
+    for my $pid ( keys %{ $self->{manager_map} } ) {
+        my $manager = $self->{manager_map}->{$pid};
+        $result .= sprintf("profile_name\t%s\tmax_workers\t%s\n", $manager->{profile}->inspect, $manager->{max_workers});
     }
 
     return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], [$result]];
