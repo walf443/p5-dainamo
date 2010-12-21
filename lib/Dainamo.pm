@@ -83,14 +83,6 @@ sub run {
 
     my $child_pid_of = {};
 
-    my $admin_port_pid = fork();
-    die "Can't fork: $!" unless defined $admin_port_pid;
-    if ( $admin_port_pid ) {
-        $child_pid_of->{$admin_port_pid}++;
-    } else {
-        $self->_start_admin_server;
-    }
-
     my $total_weight = 0;
     my $num_profiles = 0;
     for my $profile ( @{ $self->{profiles} } ) {
@@ -110,6 +102,15 @@ sub run {
             $self->_start_manager($profile, $max_workers);
         }
     }
+
+    my $admin_port_pid = fork();
+    die "Can't fork: $!" unless defined $admin_port_pid;
+    if ( $admin_port_pid ) {
+        $child_pid_of->{$admin_port_pid}++;
+    } else {
+        $self->_start_admin_server;
+    }
+
     for my $sig ( qw/TERM INT HUP/ ) {
         $SIG{$sig} = sub {
             debugf("trap signal: $sig");
@@ -121,6 +122,8 @@ sub run {
             }
         };
     }
+
+
     $self->update_scoreboard({ status => 'running' });
     while ( keys %{ $child_pid_of } ) {
         my $pid = wait;
@@ -243,6 +246,7 @@ sub _start_admin_server {
     use Plack::Middleware::ContentLength;
     $app = Plack::Middleware::ContentLength->wrap($app);
     $server->run($app);
+    exit;
 }
 
 sub _admin_server_app {
