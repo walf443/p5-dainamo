@@ -23,11 +23,9 @@ sub new {
             my $job = shift;
             
             infof("start $worker");
-            warn "called!! " . $self->context;
             Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
                 status => 'running',
             });
-            sleep(10); # debug.
             my $return = $worker->work_job($job);
             Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
                 status => 'waiting',
