@@ -44,6 +44,13 @@ has 'scoreboard_path' => (
     },
 );
 
+has 'admin_port' => (
+    is => 'ro',
+    default => sub {
+        '127.0.0.1:5176',
+    },
+);
+
 my $PROGNAME = $0;
 
 sub scoreboard {
@@ -235,9 +242,10 @@ sub _start_admin_server {
     my ($self, ) = @_;
 
     $0 = "$PROGNAME: [admin]";
+    my ($host, $port) = split(/:/, $self->admin_port);
     my $server = Plack::Handler::HTTP::Server::PSGI->new(
-        host => '127.0.0.1', # TODO can handle local network.
-        port => '10076', # dai na mo
+        host => $host,
+        port => $port,
     );
 
     my $app = sub {
