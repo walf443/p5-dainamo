@@ -305,16 +305,16 @@ sub _admin_action_missing_manager {
     
     my $result = "";
     for my $pid ( keys %{ $self->{manager_map} } ) {
+        my $expect_max_servers = $self->{manager_map}->{$pid}->{max_workers};
         if (  $stats->{$pid} ) {
-            my $expect_max_servers = $self->{manager_map}->{$pid}->{max_workers};
             my $message = $stats->{$pid};
             chomp $message;
             my %scoreboard = split /\t/, $message;
             if ( $expect_max_servers != $scoreboard{max_workers} ) {
-                $result .= sprintf("profile_name\t%s\tpid\t%s\n", $self->{manager_map}->{$pid}->{profile}->inspect, $pid);
+                $result .= sprintf("profile_name\t%s\tpid\t%s\texpected_max_workers\t%s\tactual_max_workers\t%s\n", $self->{manager_map}->{$pid}->{profile}->inspect, $pid, $expect_max_servers, $scoreboard{max_workers});
             }
         } else {
-            $result .= sprintf("profile_name\t%s\tpid\t%s\n", $self->{manager_map}->{$pid}->{profile}->inspect, $pid);
+            $result .= sprintf("profile_name\t%s\tpid\t%s\texpected_max_workers\t%s\tactual_max_workers\t%s\n", $self->{manager_map}->{$pid}->{profile}->inspect, $pid, $expect_max_servers, 0);
         }
     }
 
