@@ -47,7 +47,8 @@ has 'scoreboard_path' => (
 has 'admin_port' => (
     is => 'ro',
     default => sub {
-        '127.0.0.1:5176',
+        my $server = "$Dainamo::Util::DAINAMO_ADMIN_HOST_DEFAULT:$Dainamo::Util::DAINAMO_ADMIN_PORT_DEFAULT";
+        return $server;
     },
 );
 

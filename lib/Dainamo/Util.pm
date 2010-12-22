@@ -2,6 +2,9 @@ package  Dainamo::Util;
 use strict;
 use warnings;
 
+our $DAINAMO_ADMIN_PORT_DEFAULT = 5176; # da i(1) na(7) mo(6)
+our $DAINAMO_ADMIN_HOST_DEFAULT = '127.0.0.1';
+
 # this code copied from Plack::Util::_load_sandbox.
 sub _load_sandbox {
     my $_file = shift;
