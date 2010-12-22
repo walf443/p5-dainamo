@@ -1,3 +1,9 @@
+libdainamo-perl (0.02-2) unstable; urgency=low
+
+  * tiny fix. 
+
+ -- Yoshimi <walf443@gmail.com>  Wed, 22 Dec 2010 19:31:20 +0900
+
 libdainamo-perl (0.02-1) unstable; urgency=low
 
   * fix old Qudo issuse.
