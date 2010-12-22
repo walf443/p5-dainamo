@@ -177,7 +177,10 @@ sub _start_child {
     while ( $requests_per_child ) {
         try {
             $requests_per_child--;
-            $profile->run;
+            $profile->run(
+                scoreboard => $self->scoreboard,
+                scoreboard_status => $self->{__scoreboard_status},
+            );
         } catch {
             my $error = $_;
             critf($error);

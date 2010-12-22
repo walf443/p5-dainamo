@@ -4,6 +4,7 @@ use warnings;
 use parent 'Dainamo::Profile';
 use Qudo;
 use Log::Minimal qw/debugf/;
+use Dainamo::Util;
 
 sub new {
     my ($class, %args) = @_;
@@ -20,15 +21,24 @@ sub qudo {
 }
 
 sub run {
-    my ($self, ) = @_;
+    my ($self, %args) = @_;
+
+    my $scoreboard = $args{scoreboard};
+    my $scoreboard_status = $args{scoreboard_status};
 
     debugf("start Dainamo::Profile::Qudo#run()");
     # copied from Qudo's work.
     my $work_delay = $self->qudo->{work_delay};
+    Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
+        status => 'running',
+    });
     unless ( $self->qudo->manager->work_once ) {
         $self->{qudo} = undef; # disconnect while sleep.
         debugf("sleep Dainamo::Profile::Qudo#run()");
         # exit if SIGTERM in sleep.
+        Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
+            status => 'waiting',
+        });
         local $SIG{TERM} = sub {
             exit;
         };
