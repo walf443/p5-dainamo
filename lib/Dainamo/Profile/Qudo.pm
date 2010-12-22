@@ -28,7 +28,7 @@ sub run {
 
     debugf("start Dainamo::Profile::Qudo#run()");
     # copied from Qudo's work.
-    my $work_delay = $self->qudo->{work_delay};
+    my $work_delay = $self->qudo->{work_delay} || $QUDO::WORK_DELAY;
     Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
         status => 'running',
     });
