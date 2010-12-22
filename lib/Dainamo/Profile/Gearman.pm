@@ -5,6 +5,7 @@ use parent 'Dainamo::Profile';
 use Gearman::Worker;
 use UNIVERSAL::require;
 use Log::Minimal qw/infof/;
+use Dainamo::Util;
 
 sub new {
     my ($class, %args) = @_;
@@ -19,9 +20,18 @@ sub new {
             or die $@;
 
         $self->{gearman}->register_function($worker => sub {
-            infof("start $worker");
             my $job = shift;
+            
+            infof("start $worker");
+            warn "called!! " . $self->context;
+            Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
+                status => 'running',
+            });
+            sleep(10); # debug.
             my $return = $worker->work_job($job);
+            Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
+                status => 'waiting',
+            });
             infof("end $worker");
             return $return;
         });
@@ -30,8 +40,25 @@ sub new {
     return $self;
 }
 
+sub context {
+    return {};
+}
+
 sub run {
-    my ($self, ) = @_;
+    my ($self, %args) = @_;
+
+    my $class = ref $self;
+    
+    no strict 'refs'; ## no critic.
+    no warnings 'redefine';
+    my $original_code = *{"$class\::context"};
+    local *{"$class\::context"} = sub {
+        return \%args;
+    }; # localでやるとgearmanのfunctionのところに参照させられないので。
+
+    Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
+        status => 'waiting',
+    });
     $self->{gearman}->work(stop_if => sub {
         my ($idol, $last_job_time) = @_;
         return 1;
