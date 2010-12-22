@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use parent qw(Dainamo::Profile);
 use TheSchwartz;
+use Dainamo::Util;
 
 sub new {
     my ($class, %args) = @_;
@@ -24,11 +25,17 @@ sub schwartz {
 }
 
 sub run {
-    my ($self, ) = @_;
+    my ($self, %args) = @_;
+
+    my $scoreboard = $args{scoreboard};
+    my $scoreboard_status = $args{scoreboard_status};
 
     debugf("start Dainamo::Profile::TheSchwartz#run()");
     # copied from TheSchwartz's work.
     my $work_delay = $self->{config}->{work_delay} || 5;
+    Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
+        status => 'running',
+    });
     unless ( $self->schwartz->work_once ) {
         $self->{schwartz} = undef; # disconnect while sleep.
 
@@ -37,6 +44,9 @@ sub run {
         local $SIG{TERM} = sub {
             exit;
         };
+        Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
+            status => 'waiting',
+        });
         sleep $work_delay;
     }
     $self->{schwartz} = undef;
