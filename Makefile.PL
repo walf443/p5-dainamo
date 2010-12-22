@@ -14,12 +14,14 @@ build_requires 'Test::More';
 build_requires 'Test::LoadAllModules';
 build_requires 'Module::Install::ReadmeFromPod';
 
+requires 'Furl';
+requires 'Log::Minimal';
+requires 'Mouse';
+requires 'Parallel::Prefork';
+requires 'Proc::Daemon';
+requires 'Try::Tiny';
 requires 'opts';
 requires 'parent';
-requires 'Proc::Daemon';
-requires 'Mouse';
-requires 'Log::Minimal';
-requires 'Parallel::Prefork';
 
 install_script 'scripts/dainamo';
 
