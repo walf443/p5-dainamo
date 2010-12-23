@@ -22,7 +22,7 @@ sub new {
 sub get {
     my ($self, $action, $query, $options) = @_;
 
-    my $uri = URI->new(sprintf("http://%s/rcp/%s", $self->{server}, $action));
+    my $uri = URI->new(sprintf("http://%s/rpc/%s", $self->{server}, $action));
     $uri->query_form($query);
     my $res = $self->{furl}->get($uri->as_string);
     if ( $res->code != 200 ) {
@@ -54,7 +54,7 @@ __END__
     try {
         my $data = $client->get('scoreboard' => {
             type => 'manager',
-        }); # access /rcp/scoreboard?type=manager
+        }); # access /rpc/scoreboard?type=manager
 
         # data is arrayref
         # an item of data is hashref

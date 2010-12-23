@@ -267,7 +267,7 @@ sub _admin_server_app {
     my ($self, $env) = @_;
     my $class = ref $self;
 
-    if ( $env->{PATH_INFO} =~ qr{^/rcp/([^/]+)} ) {
+    if ( $env->{PATH_INFO} =~ qr{^/rpc/([^/]+)} ) {
         my $action = $1;
         my $method_name = "_admin_action_$1";
         if ( $self->can($method_name) ) {
@@ -279,7 +279,7 @@ sub _admin_server_app {
 }
 
 # return scoreboard infomation
-# if you accessed by /rcp/scoreboard?type=(master|manager|child)
+# if you accessed by /rpc/scoreboard?type=(master|manager|child)
 # you can filter information by type.
 sub _admin_action_scoreboard {
     my ($self, $env) = @_;
