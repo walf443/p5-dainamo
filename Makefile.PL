@@ -24,6 +24,7 @@ requires 'opts';
 requires 'parent';
 
 install_script 'scripts/dainamo';
+install_script 'scripts/dainamo-top';
 
 auto_include;
 auto_set_repository;
