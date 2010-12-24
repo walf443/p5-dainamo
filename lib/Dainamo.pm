@@ -217,6 +217,11 @@ sub _start_manager {
         infof("start graceful shutdown $0 [pid: $$]");
         $pm->signal_all_children('TERM');
         $self->update_scoreboard({ status => 'finish' });
+        alarm 10;
+        local $SIG{ALRM} = sub {
+            warnf("give up graceful shutdown. force shutdown!!");
+            $pm->signal_all_children('KILL'); # force kill children.
+        };
         $pm->wait_all_children;
         infof("shutdown $0");
         exit;
