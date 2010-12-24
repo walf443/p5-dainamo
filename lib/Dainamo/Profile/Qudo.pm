@@ -33,7 +33,7 @@ sub run {
         status => 'running',
     });
     unless ( $self->qudo->manager->work_once ) {
-        $self->{qudo} = undef; # disconnect while sleep.
+        $self->clear_qudo; # disconnect while sleep
         debugf("sleep Dainamo::Profile::Qudo#run()");
         # exit if SIGTERM in sleep.
         Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
@@ -44,8 +44,17 @@ sub run {
         };
         sleep $work_delay;
     }
-    $self->{qudo} = undef;
+    $self->clear_qudo; # disconnect while sleep
     debugf("finish Dainamo::Profile::Qudo#run()");
+}
+
+sub clear_qudo {
+    my ($self, ) = @_;
+
+    my $qudo = delete $self->{qudo};
+    if ( $qudo ) {
+        $qudo->{connections} = undef;
+    }
 }
 
 1;
