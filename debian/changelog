@@ -1,3 +1,9 @@
+libdainamo-perl (0.03-1) unstable; urgency=low
+
+  * fixed issue that qudo does not release db connectio while sleep.
+
+ -- Yoshimi <walf443@gmail.com>  Fri, 24 Dec 2010 11:27:30 +0900
+
 libdainamo-perl (0.02-2) unstable; urgency=low
 
   * tiny fix. 

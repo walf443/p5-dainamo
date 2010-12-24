@@ -11,7 +11,7 @@ use Plack::Handler::HTTP::Server::PSGI;
 use Plack::Builder;
 use Dainamo::Util;
 use Encode;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use 5.00800;
 
 has 'max_workers' => (
