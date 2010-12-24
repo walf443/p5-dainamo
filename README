@@ -15,11 +15,29 @@ SYNOPSIS
             }
           ),
       );
+
+      $dainamo->load_profiles('/path/to/project2/config.pl');
+
       if ( $ENV{DEVELOPMENT} ) {
       } else {
         $dainamo->daemonize(1);
       }
       $dainamo->run;
+
+    in path/to/project2/config.pl
+
+      use strict;
+      use warnings;
+      use Dainamo::ProfileGroup;
+
+      my $group = Dainamo::ProfileGroup->new;
+      $group->add_profile(profile => Dainamo::Profile::Gearman->new(
+        name => 'Project2'
+        config => {
+            job_servers => '127.0.0.1:7003',
+            workers => [ qw(Project2::Worker::Job1 Project2::Worker::Job2 ],
+        }
+      );
 
 DESCRIPTION
     Dainamo is an apllication that manage worker process.
