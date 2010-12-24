@@ -1,0 +1,74 @@
+#!perl
+use strict;
+use warnings;
+use Dainamo::Client;
+use Dainamo::Util;
+use opts;
+
+opts my $host => { isa => 'Str', comment => 'hostname', default => $Dainamo::Util::DAINAMO_ADMIN_HOST_DEFAULT },
+    my $port => { isa => 'Int', comment => 'port number', default => $Dainamo::Util::DAINAMO_ADMIN_PORT_DEFAULT },
+    my $interval => { isa => 'Int', comment => 'interval', default => 1 },
+    my $limit => { isa => 'Int', comment => 'limit show process numbers', default => 40 };
+
+use Dainamo::Client;
+
+
+my $status_rank = {
+        'running' => 0,
+        waiting => 1,
+        init => 2,
+};
+
+my $type_rank = {
+        master => 0,
+        manager => 1,
+        child => 2,
+};
+
+while ( 1 ) {
+    my $dainamo = Dainamo::Client->new(server => "$host:$port");
+    print "\033[2J"; # flush screen
+
+    eval {
+        my $data = $dainamo->get('scoreboard');
+        my $counter = 0;
+        my $prev_type = '';
+        for my $datum ( map { $_->[2] } sort { ( $b->[0] == $a->[0] ) ? $a->[1] <=> $b->[1] : $a->[0] <=> $b->[0] }
+            map { [$type_rank->{$_->{type}}, $status_rank->{$_->{status}}, $_] } @$data ) {
+
+            if ( $datum->{type} ne $prev_type ) {
+                if ( $datum->{type} eq 'master' ) {
+                    print("pid\ttype\tmax_workers\tstatus\n");
+                } elsif ( $datum->{type} eq 'manager' ) {
+                    print("pid\ttype\tprofile_name\tmax_workers\tstatus\n");
+                } elsif ( $datum->{type} eq 'child' ) {
+                    print("pid\ttype\tprofile_name\tstatus\n");
+                }
+
+            }
+
+            if ( $datum->{type} eq 'child' ) {
+                printf("%s\t%s\t%s\t%s\n",
+                    $datum->{pid},
+                    $datum->{type},
+                    $datum->{profile_name} || '',
+                    $datum->{status});
+
+            } elsif ( $datum->{type} eq 'master' ) {
+                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{max_workers}, $datum->{status};
+                print $line . "\n";
+            } elsif ( $datum->{type} eq 'manager' ) {
+                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{profile_name}, $datum->{max_workers}, $datum->{status};
+                print $line . "\n";
+            }
+
+            last if $counter > $limit;
+            $prev_type = $datum->{type};
+            $counter++;
+        }
+        # warn Dumper($data);
+    };
+    warn $@ if $@;
+    sleep($interval);
+}
+
