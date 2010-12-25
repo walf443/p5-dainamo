@@ -35,6 +35,9 @@ sub register_workers {
         $self->{gearman}->register_function($worker => sub {
             my $job = shift;
             
+            my $original_sig_term = $SIG{TERM};
+            local $SIG{TERM} = $args{on_sigterm} || $original_sig_term;
+
             infof("start $worker");
             Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
                 status => 'running',
@@ -68,7 +71,8 @@ sub run {
         status => 'waiting',
     });
 
-    $self->register_workers();
+    my $original_sig_term =  $SIG{TERM};
+    $self->register_workers(on_sigterm => $original_sig_term);
     local $SIG{TERM} = 'DEFAULT'; # give up graceful shutdown.
     local $SIG{INT} = 'DEFAULT';
     $self->{gearman}->work(stop_if => sub {
