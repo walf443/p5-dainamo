@@ -4,7 +4,7 @@ use warnings;
 use parent 'Dainamo::Profile';
 use Gearman::Worker;
 use UNIVERSAL::require;
-use Log::Minimal qw/infof/;
+use Log::Minimal qw/infof debugf/;
 use Dainamo::Util;
 
 sub new {
@@ -55,6 +55,7 @@ sub run {
 
     my $class = ref $self;
     
+    debugf("start Dainamo::Profile::Gearman#run()");
     $self->register_workers;
 
     no strict 'refs'; ## no critic.
@@ -71,6 +72,7 @@ sub run {
         my ($idol, $last_job_time) = @_;
         return 1;
     });
+    debugf("finish Dainamo::Profile::Gearman#run()");
 }
 
 1;
