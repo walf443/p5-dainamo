@@ -44,7 +44,6 @@ sub run {
         };
         sleep $work_delay;
     }
-    $self->clear_qudo; # disconnect while sleep
     debugf("finish Dainamo::Profile::Qudo#run()");
 }
 
