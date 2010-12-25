@@ -72,8 +72,8 @@ sub run {
     local $SIG{TERM} = 'DEFAULT'; # give up graceful shutdown.
     local $SIG{INT} = 'DEFAULT';
     $self->{gearman}->work(stop_if => sub {
-        my ($idol, $last_job_time) = @_;
-        return $idol;
+        my ($is_idol, $last_job_time) = @_;
+        return $is_idol;
     });
     debugf("finish Dainamo::Profile::Gearman#run()");
 }
