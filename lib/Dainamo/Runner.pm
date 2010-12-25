@@ -89,7 +89,7 @@ sub watcher {
         });
     };
     if ( $@ ) {
-        warn "watcher catche error: $@";
+        warn "watcher catch error: $@";
         $SIG{TERM}->();
     }
     wait;
