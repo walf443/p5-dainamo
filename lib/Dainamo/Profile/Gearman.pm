@@ -15,6 +15,19 @@ sub new {
     $self->{gearman} = Gearman::Worker->new;
     $self->{gearman}->job_servers($self->{config}->{job_servers});
     $self->{gearman}->prefix($self->{config}->{prefix}) if $self->{config}->{prefix};
+
+    $self->register_workers;
+
+    return $self;
+}
+
+sub context {
+    return {};
+}
+
+sub register_workers {
+    my ($self, ) = @_;
+
     for my $worker ( @{ $self->{config}->{workers} } ) {
         $worker->use
             or die $@;
@@ -35,11 +48,6 @@ sub new {
         });
     }
 
-    return $self;
-}
-
-sub context {
-    return {};
 }
 
 sub run {
@@ -47,6 +55,8 @@ sub run {
 
     my $class = ref $self;
     
+    $self->register_workers;
+
     no strict 'refs'; ## no critic.
     no warnings 'redefine';
     my $original_code = *{"$class\::context"};
