@@ -1,3 +1,9 @@
+libdainamo-perl (0.04-2) unstable; urgency=low
+
+  * fixed dainamo-starter typo. 
+
+ -- Yoshimi <walf443@gmail.com>  Sat, 25 Dec 2010 15:21:53 +0900
+
 libdainamo-perl (0.04-1) unstable; urgency=low
 
   * fix workaroud for terminatign child processes.
