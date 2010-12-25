@@ -26,7 +26,7 @@ sub context {
 }
 
 sub register_workers {
-    my ($self, ) = @_;
+    my ($self, %args) = @_;
 
     for my $worker ( @{ $self->{config}->{workers} } ) {
         $worker->use
@@ -56,7 +56,6 @@ sub run {
     my $class = ref $self;
     
     debugf("start Dainamo::Profile::Gearman#run()");
-    $self->register_workers;
 
     no strict 'refs'; ## no critic.
     no warnings 'redefine';
@@ -68,9 +67,13 @@ sub run {
     Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
         status => 'waiting',
     });
+
+    $self->register_workers();
+    local $SIG{TERM} = 'DEFAULT'; # give up graceful shutdown.
+    local $SIG{INT} = 'DEFAULT';
     $self->{gearman}->work(stop_if => sub {
         my ($idol, $last_job_time) = @_;
-        return 1;
+        return $idol;
     });
     debugf("finish Dainamo::Profile::Gearman#run()");
 }
