@@ -44,6 +44,13 @@ has 'scoreboard_path' => (
     },
 );
 
+has 'graceful_shutdown_timeout' => (
+    is => 'ro',
+    default => sub {
+        10;
+    },
+);
+
 has 'admin_port' => (
     is => 'ro',
     default => sub {
@@ -217,7 +224,7 @@ sub _start_manager {
         infof("start graceful shutdown $0 [pid: $$]");
         $pm->signal_all_children('TERM');
         $self->update_scoreboard({ status => 'finish' });
-        alarm 10;
+        alarm $self->graceful_shutdown_timeout;
         local $SIG{ALRM} = sub {
             warnf("give up graceful shutdown. force shutdown!!");
             $pm->signal_all_children('KILL'); # force kill children.
