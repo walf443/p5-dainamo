@@ -41,7 +41,7 @@ case "$1" in
          ;;
   stop)
          echo -n "Stopping $DESC: "
-         kill -TERM `cat $PIDFILE`
+         start-stap-daeomn --stop --pidfile=$PIDFILE --retry=20 --quiet
          echo "$NAME."
          rm -f $PIDFILE
          ;;
