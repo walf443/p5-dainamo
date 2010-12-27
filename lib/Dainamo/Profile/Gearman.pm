@@ -35,18 +35,13 @@ sub register_workers {
         $self->{gearman}->register_function($worker => sub {
             my $job = shift;
             
+            infof("start $worker");
             my $original_sig_term = $SIG{TERM};
             local $SIG{TERM} = $args{on_sigterm} || $original_sig_term;
 
-            infof("start $worker");
-            Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
-                status => 'running',
-            });
             my $return = $worker->work_job($job);
-            Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
-                status => 'waiting',
-            });
-            infof("end $worker");
+
+            infof("finish $worker");
             return $return;
         });
     }
@@ -75,11 +70,34 @@ sub run {
     $self->register_workers(on_sigterm => $original_sig_term);
     local $SIG{TERM} = 'DEFAULT'; # give up graceful shutdown.
     local $SIG{INT} = 'DEFAULT';
-    $self->{gearman}->work(stop_if => sub {
-        my ($is_idol, $last_job_time) = @_;
-        return $is_idol;
-    });
+    my $counter = 0;
+    $self->{gearman}->work(
+        on_start => sub {
+            my ($job_handle, ) = @_;
+            $counter++;
+            Dainamo::Util::update_scoreboard($args{scoreboard}, $args{scoreboard_status}, {
+                status => 'running',
+            });
+        },
+        on_complete => sub {
+            my ($job_handle, ) = @_;
+            Dainamo::Util::update_scoreboard($args{scoreboard}, $args{scoreboard_status}, {
+                status => 'waiting',
+            });
+        },
+        on_fail => sub {
+            my ($job_handle, ) = @_;
+            Dainamo::Util::update_scoreboard($args{scoreboard}, $args{scoreboard_status}, {
+                status => 'waiting',
+            });
+        },
+        stop_if => sub {
+            my ($is_idol, $last_job_time) = @_;
+            return $counter > $self->max_requests_per_child;
+        }
+    );
     debugf("finish Dainamo::Profile::Gearman#run()");
+    exit; # gearma->work is work over $max_requests_per_child times. so exit.
 }
 
 1;
