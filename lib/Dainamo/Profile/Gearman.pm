@@ -13,7 +13,7 @@ sub new {
     my $self = $class->SUPER::new(%args);
 
     $self->{gearman} = Gearman::Worker->new;
-    $self->{gearman}->job_servers($self->{config}->{job_servers});
+    $self->{gearman}->job_servers(@{ $self->{config}->{job_servers} });
     $self->{gearman}->prefix($self->{config}->{prefix}) if $self->{config}->{prefix};
 
     $self->register_workers;
