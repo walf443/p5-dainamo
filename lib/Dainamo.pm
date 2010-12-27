@@ -141,7 +141,7 @@ sub run {
     }
 
 
-    $self->update_scoreboard({ status => 'running' });
+    $self->update_scoreboard({ status => 'waiting' });
     while ( keys %{ $child_pid_of } ) {
         my $pid = wait;
         delete $child_pid_of->{$pid};
