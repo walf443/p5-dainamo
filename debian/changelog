@@ -1,3 +1,9 @@
+libdainamo-perl (0.05-1) unstable; urgency=low
+
+  * update Profile::Gearman's workaround. 
+
+ -- Yoshimi <walf443@gmail.com>  Mon, 27 Dec 2010 14:28:05 +0900
+
 libdainamo-perl (0.04-2) unstable; urgency=low
 
   * fixed dainamo-starter typo. 
