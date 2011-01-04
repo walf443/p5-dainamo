@@ -25,7 +25,7 @@ sub context {
 sub gearman {
     my ($self, ) = @_;
     $self->{gearman} ||= sub {
-        my $gearman = Gearman::Client->new;
+        my $gearman = Gearman::Worker->new;
         $gearman->job_servers( @{ $self->{config}->{job_servers} } );
         $gearman->prefix($self->{config}->{prefix}) if $self->{config}->{prefix};
 
