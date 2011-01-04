@@ -5,6 +5,7 @@ use parent 'Dainamo::Profile';
 use Qudo;
 use Log::Minimal qw/debugf/;
 use Dainamo::Util;
+use Time::HiRes qw/gettimeofday/;
 
 sub new {
     my ($class, %args) = @_;
@@ -26,6 +27,7 @@ sub run {
     my $scoreboard = $args{scoreboard};
     my $scoreboard_status = $args{scoreboard_status};
 
+    my $start_time = gettimeofday;
     debugf("start Dainamo::Profile::Qudo#run()");
     # copied from Qudo's work.
     my $work_delay = $self->qudo->{work_delay} || $Qudo::WORK_DELAY;
@@ -44,7 +46,9 @@ sub run {
         };
         sleep $work_delay;
     }
-    debugf("finish Dainamo::Profile::Qudo#run()");
+    my $finish_time = gettimeofday;
+    my $time = $finish_time - $finish_time;
+    debugf("finish Dainamo::Profile::Qudo#run() ($time sec.)");
 }
 
 sub clear_qudo {
