@@ -1,3 +1,10 @@
+libdainamo-perl (0.05-2) unstable; urgency=low
+
+  * Profile::Gearman: does not share connection on workers. 
+  * Profile::Gearman: show job executing time to log.
+
+ -- Yoshimi <walf443@gmail.com>  Tue,  4 Jan 2011 13:31:29 +0900
+
 libdainamo-perl (0.05-1) unstable; urgency=low
 
   * update Profile::Gearman's workaround. 
