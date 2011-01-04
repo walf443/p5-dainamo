@@ -12,17 +12,25 @@ sub new {
 
     my $self = $class->SUPER::new(%args);
 
-    $self->{gearman} = Gearman::Worker->new;
-    $self->{gearman}->job_servers(@{ $self->{config}->{job_servers} });
-    $self->{gearman}->prefix($self->{config}->{prefix}) if $self->{config}->{prefix};
-
-    $self->register_workers;
+    $self->register_workers; # For Copy on Write.
+    $self->{gearman} = undef; # not share connection on workers.
 
     return $self;
 }
 
 sub context {
     return {};
+}
+
+sub gearman {
+    my ($self, ) = @_;
+    $self->{gearman} ||= sub {
+        my $gearman = Gearman::Client->new;
+        $gearman->job_servers( @{ $self->{config}->{job_servers} } );
+        $gearman->prefix($self->{config}->{prefix}) if $self->{config}->{prefix};
+
+        $gearman;
+    }->();
 }
 
 sub register_workers {
@@ -32,7 +40,7 @@ sub register_workers {
         $worker->use
             or die $@;
 
-        $self->{gearman}->register_function($worker => sub {
+        $self->gearman->register_function($worker => sub {
             my $job = shift;
             
             infof("start $worker");
@@ -71,7 +79,7 @@ sub run {
     local $SIG{TERM} = 'DEFAULT'; # give up graceful shutdown.
     local $SIG{INT} = 'DEFAULT';
     my $counter = 0;
-    $self->{gearman}->work(
+    $self->gearman->work(
         on_start => sub {
             my ($job_handle, ) = @_;
             $counter++;
