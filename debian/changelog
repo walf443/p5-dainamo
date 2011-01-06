@@ -1,3 +1,9 @@
+libdainamo-perl (0.06-1) unstable; urgency=low
+
+  * added Dainamo::Qudo::Worker.
+
+ -- Yoshimi <walf443@gmail.com>  Thu,  6 Jan 2011 09:53:18 +0900
+
 libdainamo-perl (0.05-2) unstable; urgency=low
 
   * Profile::Gearman: does not share connection on workers. 
