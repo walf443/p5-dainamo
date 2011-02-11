@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use parent 'Dainamo::Profile';
 use Gearman::Worker;
-use UNIVERSAL::require;
+use Class::Load qw();
 use Log::Minimal qw/infof debugf/;
 use Dainamo::Util;
 
@@ -37,8 +37,7 @@ sub register_workers {
     my ($self, %args) = @_;
 
     for my $worker ( @{ $self->{config}->{workers} } ) {
-        $worker->use
-            or die $@;
+        Class::Load::load_class($worker);
 
         $self->gearman->register_function($worker => sub {
             my $job = shift;
