@@ -6,6 +6,7 @@ use Gearman::Worker;
 use Class::Load qw();
 use Log::Minimal qw/infof debugf/;
 use Dainamo::Util;
+use Time::HiRes qw/gettimeofday/;
 
 sub new {
     my ($class, %args) = @_;
@@ -43,12 +44,15 @@ sub register_workers {
             my $job = shift;
             
             infof("start $worker");
+            my $start_time = gettimeofday;
             my $original_sig_term = $SIG{TERM};
             local $SIG{TERM} = $args{on_sigterm} || $original_sig_term;
 
             my $return = $worker->work_job($job);
 
-            infof("finish $worker");
+            my $finish_time = gettimeofday;
+            my $time = $finish_time - $start_time;
+            infof(sprintf("finish $worker (%.6f sec.)", $time));
             return $return;
         });
     }
