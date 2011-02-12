@@ -21,7 +21,7 @@ sub parse_option {
         my $log_path => { isa => 'Str', comment => 'output path to log. you can also pipe with starting from "| ...".  and you can output $stderr when you specify STDERR.' },
         my $log_level => { isa => 'Str', comment => 'specify log level. (info|debug)' },
         my $watch_path => { isa => 'Str', comment => 'watching changing $watch_path and reload if $reload.' }, # FIXME: ほんとはPlack::Runnerにそろえたい(Reload)が、opts.pmの制限っぽい
-        my $config => { isa => 'Str', required => 1 };
+        my $config => { isa => 'Str', required => 1, comment => "config filename to load" };
 
     $self->{max_workers} = $max_workers;
     $self->{log_path} = $log_path;
