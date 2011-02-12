@@ -1,0 +1,147 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>設定の一部を外部ファイルへ分離したい &mdash; dainamo v0.05 documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.05',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="dainamo v0.05 documentation" href="../index.html" />
+    <link rel="up" title="逆引きレシピ" href="../cookbook.html" />
+    <link rel="next" title="開発時にファイルが変更されたら自動で再起動してほしい" href="auto_reload.html" />
+    <link rel="prev" title="デバッグに有用な情報をWorkerからログへ出力したい" href="output_to_log.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="auto_reload.html" title="開発時にファイルが変更されたら自動で再起動してほしい"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="output_to_log.html" title="デバッグに有用な情報をWorkerからログへ出力したい"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">dainamo v0.05 documentation</a> &raquo;</li>
+          <li><a href="../cookbook.html" accesskey="U">逆引きレシピ</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>設定の一部を外部ファイルへ分離したい<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>Dainamo#load_profilesを使うと、一部のProfileを追加する処理を外部ファイルに分離できます。
+例えば、開発では全てのworkerを同じサーバーで起動させたいが、本番ではIPによって読みこむworkerの種類を分離したい、といったときに便利でしょう。</p>
+<div class="highlight-python"><pre>use strict;
+use warnings;
+use Daianmo;
+
+my $dainamo = Daianmo-&gt;new();
+
+$dainamo-&gt;load_profiles("config/$ENV{APP_ENV}.pl");
+
+sub {
+    $dainamo;
+}-&gt;();</pre>
+</div>
+<p>読み込まれるファイル内では、以下のように記述し、必ずDainamo::ProfileGroupオブジェクトを評価してやってください。</p>
+<div class="highlight-python"><pre>use strict;
+use warnings;
+use Dainamo::ProfileGroup;
+
+my $group = Dainamo::ProfileGroup-&gt;new;
+$group-&gt;add_profile(
+    profile =&gt; Dainamo::Profile::Gearman-&gt;new(
+        name =&gt; 'hogehoge',
+        weight =&gt; 1.0,
+        config =&gt; +{
+            job_servers =&gt; ['127.0.0.1'],
+            workers =&gt; [qw( HogeHoge::Worker::Gearman::Hoge )],
+        },
+    ),
+);
+
+sub {
+    $group;
+}-&gt;();</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="output_to_log.html"
+                        title="previous chapter">デバッグに有用な情報をWorkerからログへ出力したい</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="auto_reload.html"
+                        title="next chapter">開発時にファイルが変更されたら自動で再起動してほしい</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/cookbook/load_profiles.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="auto_reload.html" title="開発時にファイルが変更されたら自動で再起動してほしい"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="output_to_log.html" title="デバッグに有用な情報をWorkerからログへ出力したい"
+             >previous</a> |</li>
+        <li><a href="../index.html">dainamo v0.05 documentation</a> &raquo;</li>
+          <li><a href="../cookbook.html" >逆引きレシピ</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, walf443.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

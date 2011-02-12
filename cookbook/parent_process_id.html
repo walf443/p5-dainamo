@@ -1,0 +1,122 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>親プロセスのプロセスIDを知りたい &mdash; dainamo v0.05 documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.05',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="dainamo v0.05 documentation" href="../index.html" />
+    <link rel="up" title="逆引きレシピ" href="../cookbook.html" />
+    <link rel="next" title="どうもメモリがリークしているので、応急処置として一度実行したらworkerが死ぬようにしたい" href="max_request_per_child.html" />
+    <link rel="prev" title="逆引きレシピ" href="../cookbook.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="max_request_per_child.html" title="どうもメモリがリークしているので、応急処置として一度実行したらworkerが死ぬようにしたい"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../cookbook.html" title="逆引きレシピ"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">dainamo v0.05 documentation</a> &raquo;</li>
+          <li><a href="../cookbook.html" accesskey="U">逆引きレシピ</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id">
+<h1>親プロセスのプロセスIDを知りたい<a class="headerlink" href="#id" title="Permalink to this headline">¶</a></h1>
+<p>dainamo-topを使うのがてっとり早いでしょう</p>
+<div class="highlight-python"><pre>$ dainamo-top
+pid     type    max_workers     status
+11166   master  10      waiting</pre>
+</div>
+<p>typeがmasterとなっているプロセスのpid列にある数字がpidです。</p>
+<p>親プロセスに対してSIGNALを送ってやることでdainamoの管理している全プロセスを終了したりできます。</p>
+<div class="highlight-python"><pre>$ kill -TERM 11166 # 今やっているジョブをおわったら終了
+$ kill -INT  11166 # なるべくすぐ終了</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../cookbook.html"
+                        title="previous chapter">逆引きレシピ</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="max_request_per_child.html"
+                        title="next chapter">どうもメモリがリークしているので、応急処置として一度実行したらworkerが死ぬようにしたい</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/cookbook/parent_process_id.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="max_request_per_child.html" title="どうもメモリがリークしているので、応急処置として一度実行したらworkerが死ぬようにしたい"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../cookbook.html" title="逆引きレシピ"
+             >previous</a> |</li>
+        <li><a href="../index.html">dainamo v0.05 documentation</a> &raquo;</li>
+          <li><a href="../cookbook.html" >逆引きレシピ</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, walf443.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

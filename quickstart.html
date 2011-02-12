@@ -1,0 +1,233 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>クイックスタート &mdash; dainamo v0.05 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.05',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="dainamo v0.05 documentation" href="index.html" />
+    <link rel="next" title="逆引きレシピ" href="cookbook.html" />
+    <link rel="prev" title="特徴" href="feature.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="cookbook.html" title="逆引きレシピ"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="feature.html" title="特徴"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">dainamo v0.05 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>クイックスタート<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>dainamoを使ってできる例として、まずは簡単なGearmanのworkerを書いてみましょう。</p>
+<p>まずは設定ファイルを用意します。</p>
+<div class="highlight-perl"><div class="highlight"><pre><span class="nb">package</span> <span class="nn">HogeHoge::Worker::Gearman::</span><span class="n">Double</span><span class="p">;</span>
+
+<span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">warnings</span><span class="p">;</span>
+
+<span class="k">sub </span><span class="nf">work_job</span> <span class="p">{</span>
+    <span class="k">my</span> <span class="p">(</span><span class="nv">$class</span><span class="p">,</span> <span class="nv">$job</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+    <span class="k">my</span> <span class="nv">$ret</span> <span class="o">=</span> <span class="nv">$job</span><span class="o">-&gt;</span><span class="n">arg</span> <span class="o">*</span> <span class="nv">$job</span><span class="o">-&gt;</span><span class="n">arg</span><span class="p">;</span>
+    <span class="c1"># sleep 1;</span>
+    <span class="k">return</span> <span class="s">&quot;$ret (pid $$)&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">package</span> <span class="nn">HogeHoge::Worker::Gearman::</span><span class="n">Sqrt</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">warnings</span><span class="p">;</span>
+
+<span class="k">sub </span><span class="nf">work_job</span> <span class="p">{</span>
+    <span class="k">my</span> <span class="p">(</span><span class="nv">$class</span><span class="p">,</span> <span class="nv">$job</span><span class="p">)</span> <span class="o">=</span> <span class="nv">@_</span><span class="p">;</span>
+    <span class="k">my</span> <span class="nv">$ret</span> <span class="o">=</span> <span class="nb">sqrt</span><span class="p">(</span><span class="nv">$job</span><span class="o">-&gt;</span><span class="n">arg</span><span class="p">);</span>
+    <span class="nb">sleep</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">return</span> <span class="nv">$ret</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nb">package</span> <span class="n">main</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Getopt::</span><span class="n">Long</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Pod::</span><span class="n">Usage</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">lib</span> <span class="s">&#39;lib&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">Dainamo</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Dainamo::Profile::</span><span class="n">Gearman</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$dainamo</span> <span class="o">=</span> <span class="n">Dainamo</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
+    <span class="n">max_workers</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">log_level</span> <span class="o">=&gt;</span> <span class="s">&#39;info&#39;</span><span class="p">,</span>
+<span class="p">);</span>
+
+<span class="nv">$dainamo</span><span class="o">-&gt;</span><span class="n">add_profile</span><span class="p">(</span>
+    <span class="n">profile</span> <span class="o">=&gt;</span> <span class="nn">Dainamo::Profile::</span><span class="n">Gearman</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=&gt;</span> <span class="s">&#39;hogehoge&#39;</span><span class="p">,</span>
+        <span class="n">max_requests_per_child</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">weight</span> <span class="o">=&gt;</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">config</span> <span class="o">=&gt;</span> <span class="o">+</span><span class="p">{</span>
+            <span class="n">job_servers</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">],</span>
+            <span class="n">workers</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="sx">qw( HogeHoge::Worker::Gearman::Double HogeHoge::Worker::Gearman::Sqrt )</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">);</span>
+
+<span class="k">sub </span><span class="p">{</span>
+    <span class="nv">$dainamo</span><span class="p">;</span>
+<span class="p">}</span><span class="o">-&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>次のようにしてgearmandを起動します。</p>
+<div class="highlight-python"><pre>$ gearmand --daemon</pre>
+</div>
+<p>次のようにしてdainamoを起動します。</p>
+<div class="highlight-python"><pre>$ dainamo -c 001-dainamo-conf.pl</pre>
+</div>
+<p>終了するには、SIGINTあるいは、SIGTERMを親プロセスに対して送ってやればよいです。</p>
+<p>daemonizeしていないので、基本的な端末であれば、&lt;Ctrl+C&gt;で終了できるでしょう。</p>
+<p>次のようなスクリプトを作り、別端末から実行してやりましょう。</p>
+<div class="highlight-perl"><div class="highlight"><pre><span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Gearman::</span><span class="n">Client</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Log::</span><span class="n">Minimal</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nn">Gearman::</span><span class="n">Client</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">;</span>
+<span class="nv">$client</span><span class="o">-&gt;</span><span class="n">job_servers</span><span class="p">(</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">);</span>
+<span class="k">my</span> <span class="nv">$ret</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="n">do_task</span><span class="p">(</span><span class="s">&quot;HogeHoge::Worker::Gearman::Double&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">);</span>
+<span class="n">warnf</span> <span class="nv">$$ret</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>dainamoを起動している方の端末をみると、次のようなlogからworkerが動作したのが確認できるはずです。</p>
+<div class="highlight-python"><pre>[2011-02-11T16:59:14] [INFO] [30348] start HogeHoge::Worker::Gearman::Double at lib/Dainamo/Profile/Gearman.pm line 45
+[2011-02-11T16:59:14] [INFO] [30348] finish HogeHoge::Worker::Gearman::Double at lib/Dainamo/Profile/Gearman.pm line 51</pre>
+</div>
+<p>せっかくなので、もっとたくさんのjobを実行させてみましょう。</p>
+<div class="highlight-perl"><div class="highlight"><pre><span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Gearman::</span><span class="n">Client</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Log::</span><span class="n">Minimal</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Parallel::</span><span class="n">ForkManager</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$client</span> <span class="o">=</span> <span class="nn">Gearman::</span><span class="n">Client</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">;</span>
+<span class="nv">$client</span><span class="o">-&gt;</span><span class="n">job_servers</span><span class="p">(</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">);</span>
+
+<span class="k">my</span> <span class="nv">@jobs</span> <span class="o">=</span> <span class="sx">qw(HogeHoge::Worker::Gearman::Double HogeHoge::Worker::Gearman::Sqrt)</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$pm</span> <span class="o">=</span> <span class="nn">Parallel::</span><span class="n">ForkManager</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+
+<span class="k">for</span> <span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="mi">10000</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">my</span> <span class="nv">$pid</span> <span class="o">=</span> <span class="nv">$pm</span><span class="o">-&gt;</span><span class="n">start</span> <span class="ow">and</span> <span class="k">next</span><span class="p">;</span>
+    <span class="k">my</span> <span class="nv">$job</span> <span class="o">=</span> <span class="nv">$jobs</span><span class="p">[</span><span class="nb">rand</span><span class="p">(</span><span class="nv">@jobs</span><span class="p">)];</span>
+    <span class="k">my</span> <span class="nv">$ret</span> <span class="o">=</span> <span class="nv">$client</span><span class="o">-&gt;</span><span class="n">do_task</span><span class="p">(</span><span class="nv">$job</span><span class="p">,</span> <span class="nb">rand</span><span class="p">(</span><span class="mi">1000</span><span class="p">));</span>
+    <span class="n">warnf</span> <span class="nv">$$ret</span><span class="p">;</span>
+    <span class="nv">$pm</span><span class="o">-&gt;</span><span class="n">finish</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="nv">$pm</span><span class="o">-&gt;</span><span class="n">wait_all_children</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>ログをみていると、様々なjobが実行されていることがわかると思います。
+dainamoの各プロセスの状態を見るにはdainamo-topコマンドが使えます。</p>
+<div class="highlight-python"><pre>$ dainamo-top
+pid     type    max_workers     status
+74220   master  10      waiting
+pid     type    profile_name    max_workers     status
+74222   manager Dainamo::Profile::Gearman[hogehoge]     10      waiting
+pid     type    profile_name    status
+76666   child   Dainamo::Profile::Gearman[hogehoge]     running
+76722   child   Dainamo::Profile::Gearman[hogehoge]     running
+76731   child   Dainamo::Profile::Gearman[hogehoge]     running
+76737   child   Dainamo::Profile::Gearman[hogehoge]     running
+76739   child   Dainamo::Profile::Gearman[hogehoge]     running
+76796   child   Dainamo::Profile::Gearman[hogehoge]     running
+76807   child   Dainamo::Profile::Gearman[hogehoge]     running
+76708   child   Dainamo::Profile::Gearman[hogehoge]     waiting
+76728   child   Dainamo::Profile::Gearman[hogehoge]     waiting
+76766   child   Dainamo::Profile::Gearman[hogehoge]     waiting</pre>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="feature.html"
+                        title="previous chapter">特徴</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="cookbook.html"
+                        title="next chapter">逆引きレシピ</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="sources/quickstart.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="cookbook.html" title="逆引きレシピ"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="feature.html" title="特徴"
+             >previous</a> |</li>
+        <li><a href="index.html">dainamo v0.05 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, walf443.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

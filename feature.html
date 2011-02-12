@@ -1,0 +1,143 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>特徴 &mdash; dainamo v0.05 documentation</title>
+    <link rel="stylesheet" href="static/default.css" type="text/css" />
+    <link rel="stylesheet" href="static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '0.05',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="static/jquery.js"></script>
+    <script type="text/javascript" src="static/underscore.js"></script>
+    <script type="text/javascript" src="static/doctools.js"></script>
+    <link rel="top" title="dainamo v0.05 documentation" href="index.html" />
+    <link rel="next" title="クイックスタート" href="quickstart.html" />
+    <link rel="prev" title="dainamoドキュメント" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="quickstart.html" title="クイックスタート"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="dainamoドキュメント"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">dainamo v0.05 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="id1">
+<h1>特徴<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h1>
+<p>dainamoは、perlで書かれたperfork型のworkerプロセスを管理するためのプログラムです。
+dainamoは、これらの特徴をもちます。</p>
+<div class="section" id="graceful-shutdown">
+<h2>graceful shutdown<a class="headerlink" href="#graceful-shutdown" title="Permalink to this headline">¶</a></h2>
+<p>SIGTERMを送信すると、jobがある程度終了するのを待ってからshutdownさせることができます。</p>
+</div>
+<div class="section" id="logging">
+<h2>logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p>起動/終了、jobを実行した内容、warnings、エラー終了等をログに記録させることができます。</p>
+</div>
+<div class="section" id="id2">
+<h2>柔軟な設定ファイル<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>perlがそのまま書けるので、柔軟に設定が書けます。</p>
+</div>
+<div class="section" id="id3">
+<h2>複数のプロセスの簡単な起動および終了<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<p>一つの設定で、複数のworkerの起動の管理ができるので、プロジェクトのworkerスクリプト群の起動/終了が簡単になります。</p>
+</div>
+<div class="section" id="admin-port">
+<h2>admin portによる監視<a class="headerlink" href="#admin-port" title="Permalink to this headline">¶</a></h2>
+<p>admin portを通してdainamoが管理している状態を知ることができるので、監視に使えます。</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">特徴</a><ul>
+<li><a class="reference internal" href="#graceful-shutdown">graceful shutdown</a></li>
+<li><a class="reference internal" href="#logging">logging</a></li>
+<li><a class="reference internal" href="#id2">柔軟な設定ファイル</a></li>
+<li><a class="reference internal" href="#id3">複数のプロセスの簡単な起動および終了</a></li>
+<li><a class="reference internal" href="#admin-port">admin portによる監視</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">dainamoドキュメント</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="quickstart.html"
+                        title="next chapter">クイックスタート</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="sources/feature.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="quickstart.html" title="クイックスタート"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="dainamoドキュメント"
+             >previous</a> |</li>
+        <li><a href="index.html">dainamo v0.05 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, walf443.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>

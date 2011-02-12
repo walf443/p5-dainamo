@@ -1,0 +1,145 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>どうもメモリがリークしているので、応急処置として一度実行したらworkerが死ぬようにしたい &mdash; dainamo v0.05 documentation</title>
+    <link rel="stylesheet" href="../static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.05',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../static/jquery.js"></script>
+    <script type="text/javascript" src="../static/underscore.js"></script>
+    <script type="text/javascript" src="../static/doctools.js"></script>
+    <link rel="top" title="dainamo v0.05 documentation" href="../index.html" />
+    <link rel="up" title="逆引きレシピ" href="../cookbook.html" />
+    <link rel="next" title="あるワーカーを特定のプロセス数に制限したい" href="force_max_workers.html" />
+    <link rel="prev" title="親プロセスのプロセスIDを知りたい" href="parent_process_id.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="force_max_workers.html" title="あるワーカーを特定のプロセス数に制限したい"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="parent_process_id.html" title="親プロセスのプロセスIDを知りたい"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">dainamo v0.05 documentation</a> &raquo;</li>
+          <li><a href="../cookbook.html" accesskey="U">逆引きレシピ</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="worker">
+<h1>どうもメモリがリークしているので、応急処置として一度実行したらworkerが死ぬようにしたい<a class="headerlink" href="#worker" title="Permalink to this headline">¶</a></h1>
+<p>Profileを追加する際にオプションとしてmax_request_per_childを指定してやればよいです。</p>
+<div class="highlight-perl"><div class="highlight"><pre><span class="nb">package</span> <span class="n">main</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">strict</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">warnings</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Getopt::</span><span class="n">Long</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Pod::</span><span class="n">Usage</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">lib</span> <span class="s">&#39;lib&#39;</span><span class="p">;</span>
+<span class="k">use</span> <span class="n">Dainamo</span><span class="p">;</span>
+<span class="k">use</span> <span class="nn">Dainamo::Profile::</span><span class="n">Gearman</span><span class="p">;</span>
+
+<span class="k">my</span> <span class="nv">$dainamo</span> <span class="o">=</span> <span class="n">Dainamo</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
+    <span class="n">max_workers</span> <span class="o">=&gt;</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">log_level</span> <span class="o">=&gt;</span> <span class="s">&#39;info&#39;</span><span class="p">,</span>
+<span class="p">);</span>
+
+<span class="nv">$dainamo</span><span class="o">-&gt;</span><span class="n">add_profile</span><span class="p">(</span>
+    <span class="n">profile</span> <span class="o">=&gt;</span> <span class="nn">Dainamo::Profile::</span><span class="n">Gearman</span><span class="o">-&gt;</span><span class="k">new</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=&gt;</span> <span class="s">&#39;hogehoge&#39;</span><span class="p">,</span>
+        <span class="n">max_requests_per_child</span> <span class="o">=&gt;</span> <span class="mi">1</span><span class="p">,</span> <span class="c1"># メモリリークが深刻なので応急処置としてなおるまで毎回終了させる</span>
+        <span class="n">weight</span> <span class="o">=&gt;</span> <span class="mf">1.0</span><span class="p">,</span>
+        <span class="n">config</span> <span class="o">=&gt;</span> <span class="o">+</span><span class="p">{</span>
+            <span class="n">job_servers</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="s">&#39;127.0.0.1&#39;</span><span class="p">],</span>
+            <span class="n">workers</span> <span class="o">=&gt;</span> <span class="p">[</span><span class="sx">qw( HogeHoge::Worker::Gearman::Hoge )</span><span class="p">],</span>
+        <span class="p">},</span>
+    <span class="p">),</span>
+<span class="p">);</span>
+
+<span class="k">sub </span><span class="p">{</span>
+    <span class="nv">$dainamo</span><span class="p">;</span>
+<span class="p">}</span><span class="o">-&gt;</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>max_request_per_child回実行したら、そのworkerはexitし、managerは次のworkerをforkします。</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="parent_process_id.html"
+                        title="previous chapter">親プロセスのプロセスIDを知りたい</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="force_max_workers.html"
+                        title="next chapter">あるワーカーを特定のプロセス数に制限したい</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../sources/cookbook/max_request_per_child.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" size="18" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="force_max_workers.html" title="あるワーカーを特定のプロセス数に制限したい"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="parent_process_id.html" title="親プロセスのプロセスIDを知りたい"
+             >previous</a> |</li>
+        <li><a href="../index.html">dainamo v0.05 documentation</a> &raquo;</li>
+          <li><a href="../cookbook.html" >逆引きレシピ</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, walf443.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.5.
+    </div>
+  </body>
+</html>
