@@ -1,7 +1,7 @@
 package  Dainamo::Worker::Qudo;
 use strict;
 use warnings;
-use base qw(Qudo::Worker);
+use parent qw(Qudo::Worker);
 use Log::Minimal qw/infof critf warnff/;
 use Data::Dumper;
 use Time::HiRes qw/gettimeofday/;
