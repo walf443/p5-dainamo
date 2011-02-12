@@ -8,6 +8,8 @@ sub new {
     bless \%args, $class;
 }
 
+sub force_max_workers { $_[0]->{force_max_workers} || 0 }
+
 sub max_requests_per_child {
     my ($self, ) = @_;
     $self->{max_requests_per_child} || 40;

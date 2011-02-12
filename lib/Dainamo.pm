@@ -109,6 +109,10 @@ sub run {
     #   fuga: 2.0: 66 ( 100 / 3.0 ) * 2.0 = 33.33 * 2 
     for my $profile ( @{ $self->{profiles} } ) {
         my $max_workers = int($self->max_workers * $profile->weight / $total_weight ) || 1; # at least over 1.
+        if ( $profile->force_max_workers > $max_workers ) {
+            warnf("force_max_workers (@{[ $profile->force_max_workers ]} is larger than calculated max_workers ($max_workers)");
+        }
+        $max_workers = $profile->force_max_workers || $max_workers;
         my $pid = fork;
         die "Can't fork: $!" unless defined $pid;
         $self->{manager_map} ||= {};
