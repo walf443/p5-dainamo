@@ -1,3 +1,11 @@
+libdainamo-perl (0.07-1) unstable; urgency=low
+
+  * UNIVERSAL::requireの代わにりClass::Loadを使うようになった
+  * Profileの設定でforce_max_workersオプションが使えるようになった
+  * jobの実行時間をログに表示するようになった
+
+ -- Yoshimi <walf443@gmail.com>  Mon, 14 Feb 2011 16:28:41 +0900
+
 libdainamo-perl (0.06-1) unstable; urgency=low
 
   * added Dainamo::Qudo::Worker.
