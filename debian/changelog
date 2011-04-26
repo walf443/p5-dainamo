@@ -1,3 +1,10 @@
+libdainamo-perl (0.07-2) unstable; urgency=low
+
+  * Dainamo::Profile::Gearman:
+  max_request_per_childをこえた場合にうまく処理できないworkerが出てくる問題を修正 
+
+ -- Yoshimi <walf443@gmail.com>  Tue, 26 Apr 2011 16:35:40 +0900
+
 libdainamo-perl (0.07-1) unstable; urgency=low
 
   * UNIVERSAL::requireの代わにりClass::Loadを使うようになった
