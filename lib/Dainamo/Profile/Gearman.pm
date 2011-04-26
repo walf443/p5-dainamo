@@ -63,6 +63,9 @@ sub run {
     my ($self, %args) = @_;
 
     my $class = ref $self;
+
+    # max_requests_per_childを越えてforkした場合にソケットが共有されてしまうことがあるっぽい
+    $self->{gearman} = undef; 
     
     debugf("start Dainamo::Profile::Gearman#run()");
 
