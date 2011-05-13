@@ -37,6 +37,13 @@ case "$1" in
          fi
 
          start-stop-daemon --start -p $PIDFILE -m -b --name $NAME --exec $DAINAMO_CMD -- $DAINAMO_OPTION
+         sleep 1
+         if [ -d /proc/`cat $PIDFILE`/ ]
+         then
+             echo "started"
+         else
+            $DAINAMO_CMD $DAINAMO_OPTION
+         fi
          echo "$NAME."
          ;;
   stop)
