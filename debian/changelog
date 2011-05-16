@@ -1,3 +1,9 @@
+libdainamo-perl (0.07-3) unstable; urgency=low
+
+  * dainamo-starterの起動時にエラーが出た場合に、標準エラー出力にエラーが出るように 
+
+ -- Yoshimi <walf443@gmail.com>  Mon, 16 May 2011 10:56:43 +0900
+
 libdainamo-perl (0.07-2) unstable; urgency=low
 
   * Dainamo::Profile::Gearman:
