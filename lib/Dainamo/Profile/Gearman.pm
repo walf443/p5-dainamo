@@ -19,10 +19,6 @@ sub new {
     return $self;
 }
 
-sub context {
-    return {};
-}
-
 sub gearman {
     my ($self, ) = @_;
     $self->{gearman} ||= sub {
@@ -69,14 +65,7 @@ sub run {
     
     debugf("start Dainamo::Profile::Gearman#run()");
 
-    no strict 'refs'; ## no critic.
-    no warnings 'redefine';
-    my $original_code = *{"$class\::context"};
-    local *{"$class\::context"} = sub {
-        return \%args;
-    }; # localでやるとgearmanのfunctionのところに参照させられないので。
-
-    Dainamo::Util::update_scoreboard($self->context->{scoreboard}, $self->context->{scoreboard_status}, {
+    Dainamo::Util::update_scoreboard($args{scoreboard}, $args{scoreboard_status}, {
         status => 'waiting',
     });
 
