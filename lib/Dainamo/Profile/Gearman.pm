@@ -37,8 +37,6 @@ sub gearman {
 sub register_workers {
     my ($self, %args) = @_;
 
-    # max_requests_per_childを越えてforkした場合にソケットが共有されてしまうことがあるっぽい
-    $self->{gearman} = undef;
     for my $worker ( @{ $self->{config}->{workers} } ) {
         Class::Load::load_class($worker);
 
@@ -66,6 +64,9 @@ sub run {
 
     my $class = ref $self;
 
+    # max_requests_per_childを越えてforkした場合にソケットが共有されてしまうことがあるっぽい
+    $self->{gearman} = undef; 
+    
     debugf("start Dainamo::Profile::Gearman#run()");
 
     no strict 'refs'; ## no critic.
