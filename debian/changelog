@@ -1,3 +1,9 @@
+libdainamo-perl (0.07-4) unstable; urgency=low
+
+  * どうも処理されないサーバーが出てきてしまう問題を修正 
+
+ -- Yoshimi <walf443@gmail.com>  Mon, 30 May 2011 15:27:16 +0900
+
 libdainamo-perl (0.07-3) unstable; urgency=low
 
   * dainamo-starterの起動時にエラーが出た場合に、標準エラー出力にエラーが出るように 
