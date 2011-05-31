@@ -52,6 +52,9 @@ case "$1" in
          echo "$NAME."
          rm -f $PIDFILE
          ;;
+  restart)
+	 $0 stop && $0 start
+	 ;;
   *)
          N=/etc/init.d/$NAME
          echo "Usage: $N {start|stop}" >&2
