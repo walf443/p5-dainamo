@@ -1,3 +1,9 @@
+libdainamo-perl (0.07-5) unstable; urgency=low
+
+  * dainamo-starterにrestartオプションを追加
+
+ -- Sato Kenta <k-sato@mfac.jp>  Tue, 31 May 2011 17:22:35 +0900
+
 libdainamo-perl (0.07-4) unstable; urgency=low
 
   * どうも処理されないサーバーが出てきてしまう問題を修正 
