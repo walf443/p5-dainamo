@@ -13,9 +13,6 @@ sub new {
 
     my $self = $class->SUPER::new(%args);
 
-    $self->register_workers; # For Copy on Write.
-    $self->{gearman} = undef; # not share connection on workers.
-
     return $self;
 }
 
