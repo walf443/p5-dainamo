@@ -42,17 +42,18 @@ while ( 1 ) {
                 } elsif ( $datum->{type} eq 'manager' ) {
                     print("pid\ttype\tprofile_name\tmax_workers\tstatus\n");
                 } elsif ( $datum->{type} eq 'child' ) {
-                    print("pid\ttype\tprofile_name\tstatus\n");
+                    print("pid\ttype\tprofile_name\tstatus\tcounter\n");
                 }
 
             }
 
             if ( $datum->{type} eq 'child' ) {
-                printf("%s\t%s\t%s\t%s\n",
+                printf("%s\t%s\t%s\t%s\t%d\n",
                     $datum->{pid},
                     $datum->{type},
                     $datum->{profile_name} || '',
-                    $datum->{status});
+                    $datum->{status},
+                    $datum->{counter});
 
             } elsif ( $datum->{type} eq 'master' ) {
                 my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{max_workers}, $datum->{status};

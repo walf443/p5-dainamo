@@ -161,6 +161,7 @@ sub _start_child {
         type => 'child',
         profile_name => $profile->inspect,
         status => 'init',
+        counter => 0,
     });
     $0 = "$PROGNAME: [child] $profile";
     srand; # It's trap to call rand in child process. so, initialized.

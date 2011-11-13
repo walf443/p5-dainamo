@@ -77,18 +77,21 @@ sub run {
             $counter++;
             Dainamo::Util::update_scoreboard($args{scoreboard}, $args{scoreboard_status}, {
                 status => 'running',
+                counter => $counter,
             });
         },
         on_complete => sub {
             my ($job_handle, ) = @_;
             Dainamo::Util::update_scoreboard($args{scoreboard}, $args{scoreboard_status}, {
                 status => 'waiting',
+                counter => $counter,
             });
         },
         on_fail => sub {
             my ($job_handle, ) = @_;
             Dainamo::Util::update_scoreboard($args{scoreboard}, $args{scoreboard_status}, {
                 status => 'waiting',
+                counter => $counter,
             });
         },
         stop_if => sub {

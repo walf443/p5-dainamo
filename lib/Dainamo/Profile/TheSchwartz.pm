@@ -8,6 +8,7 @@ use Dainamo::Util;
 sub new {
     my ($class, %args) = @_;
     my $self = $class->SUPER::new(%args);
+    $self->{counter} = 0;
     $self->schwartz; # for CoW.
     return $self;
 }
@@ -36,7 +37,13 @@ sub run {
     Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
         status => 'running',
     });
-    unless ( $self->schwartz->work_once ) {
+    if ( $self->schwartz->work_once ) {
+        $self->{counter}++;
+        Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
+            status => 'waiting',
+            counter => $self->{counter},
+        });
+    } else {
         $self->{schwartz} = undef; # disconnect while sleep.
 
         debugf("sleep Dainamo::Profile::TheSchwartz#run()");

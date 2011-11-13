@@ -10,6 +10,7 @@ use Time::HiRes qw/gettimeofday/;
 sub new {
     my ($class, %args) = @_;
     my $self = $class->SUPER::new(%args);
+    $self->{counter} = 0;
     $self->qudo; # for CoW.
     return $self;
 }
@@ -34,7 +35,13 @@ sub run {
     Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
         status => 'running',
     });
-    unless ( $self->qudo->manager->work_once ) {
+    if ( $self->qudo->manager->work_once ) {
+        $self->{counter}++;
+        Dainamo::Util::update_scoreboard($scoreboard, $scoreboard_status, {
+            status => 'waiting',
+            counter => $self->{counter},
+        });
+    } else {
         $self->clear_qudo; # disconnect while sleep
         debugf("sleep Dainamo::Profile::Qudo#run()");
         # exit if SIGTERM in sleep.
