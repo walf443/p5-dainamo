@@ -38,9 +38,9 @@ while ( 1 ) {
 
             if ( $datum->{type} ne $prev_type ) {
                 if ( $datum->{type} eq 'master' ) {
-                    print("pid\ttype\tmax_workers\tstatus\n");
+                    print("pid\ttype\tmax_workers\tstatus\tcounter\n");
                 } elsif ( $datum->{type} eq 'manager' ) {
-                    print("pid\ttype\tprofile_name\tmax_workers\tstatus\n");
+                    print("pid\ttype\tprofile_name\tmax_workers\tstatus\tcounter\n");
                 } elsif ( $datum->{type} eq 'child' ) {
                     print("pid\ttype\tprofile_name\tstatus\tcounter\n");
                 }
@@ -56,10 +56,10 @@ while ( 1 ) {
                     $datum->{counter});
 
             } elsif ( $datum->{type} eq 'master' ) {
-                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{max_workers}, $datum->{status};
+                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{max_workers}, $datum->{status}, $datum->{counter};
                 print $line . "\n";
             } elsif ( $datum->{type} eq 'manager' ) {
-                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{profile_name}, $datum->{max_workers}, $datum->{status};
+                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{profile_name}, $datum->{max_workers}, $datum->{status}, $datum->{counter};
                 print $line . "\n";
             }
 

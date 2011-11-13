@@ -7,6 +7,7 @@ use Class::Load qw();
 use Log::Minimal qw/infof debugf/;
 use Dainamo::Util;
 use Time::HiRes qw/gettimeofday/;
+use Dainamo::Client;
 
 sub new {
     my ($class, %args) = @_;
@@ -52,6 +53,12 @@ sub register_workers {
 
 }
 
+sub client {
+    my ($self, ) = @_;
+    return unless $ENV{DAINAMO_ADMIN_PORT};
+    $self->{dainamo} ||= Dainamo::Client->new(server => $ENV{DAINAMO_ADMIN_PORT});
+}
+
 sub run {
     my ($self, %args) = @_;
 
@@ -66,6 +73,7 @@ sub run {
         status => 'waiting',
     });
 
+    my $manager_pid = getppid();
     my $original_sig_term =  $SIG{TERM};
     $self->register_workers(on_sigterm => $original_sig_term);
     local $SIG{TERM} = 'DEFAULT'; # give up graceful shutdown.
@@ -79,6 +87,7 @@ sub run {
                 status => 'running',
                 counter => $counter,
             });
+            $self->client->get('update_counter', { manager_pid => $manager_pid });
         },
         on_complete => sub {
             my ($job_handle, ) = @_;

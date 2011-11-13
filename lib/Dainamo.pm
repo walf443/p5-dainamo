@@ -59,6 +59,13 @@ has 'admin_port' => (
     },
 );
 
+has 'counter_of' => (
+    is => 'rw',
+    default => sub {
+        return +{};
+    },
+);
+
 my $PROGNAME = $0;
 
 sub scoreboard {
@@ -88,6 +95,9 @@ sub run {
         status => 'init',
         max_workers => $self->max_workers,
     });
+
+    # FIXME:
+    $ENV{DAINAMO_ADMIN_PORT} = $self->admin_port;
 
     local $ENV{LM_DEBUG} = 1 if $self->log_level eq 'debug';
     local $Log::Minimal::PRINT = sub {
@@ -308,9 +318,27 @@ sub _admin_action_scoreboard {
         if ( $env->{QUERY_STRING} =~ /type=([^&]+)/ ) {
             next unless $message =~ /\btype\t$1\b/;
         }
+        if ( $self->{counter_of}->{$pid} ) {
+            $message .= sprintf("\tcounter\t%d", $self->{counter_of}->{$pid});
+        }
         $result .= sprintf("pid\t%s\t%s\n", $pid, $message);
     }
     return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], [$result]];
+}
+
+sub _admin_action_update_counter {
+    my ($self, $env) = @_;
+
+    my $ppid = getppid();
+    if ( $env->{QUERY_STRING} =~ m/manager_pid=(\d+)/ ) {
+        $self->{counter_of}->{$1} ||= 0;
+        $self->{counter_of}->{$1}++;
+        $self->{counter_of}->{$ppid} ||= 0;
+        $self->{counter_of}->{$ppid}++;
+    }
+
+    # response is dummy
+    return [200, ['Content-Type', 'text/tab-separacetd-values; encoding=UTF-8'], ["OK\tOK"]];
 }
 
 # return manager information that defined before running.
