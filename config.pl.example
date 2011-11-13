@@ -3,7 +3,7 @@ package HogeHoge::Worker::Gearman::Double;
 use strict;
 use warnings;
 
-sub work {
+sub work_job {
     my ($class, $job) = @_;
     my $ret = $job->arg * $job->arg;
     return "$ret (pid $$)";
@@ -13,7 +13,7 @@ package HogeHoge::Worker::Gearman::Sqrt;
 use strict;
 use warnings;
 
-sub work {
+sub work_job {
     my ($class, $job) = @_;
     my $ret = sqrt($job->arg);
     return $ret;
@@ -43,7 +43,7 @@ $dainamo->add_profile(
         max_requests_per_child => 1,
         weight => 1.0,
         config => +{
-            job_servers => '127.0.0.1',
+            job_servers => ['127.0.0.1'],
             workers => [qw( HogeHoge::Worker::Gearman::Double )],
         },
     ),
@@ -55,7 +55,7 @@ $dainamo->add_profile(
         max_requests_per_child => 2,
         weight => 1.0,
         config => +{
-            job_servers => '127.0.0.1',
+            job_servers => ['127.0.0.1'],
             workers => [qw( HogeHoge::Worker::Gearman::Double )],
         },
     ),
@@ -67,10 +67,12 @@ $dainamo->add_profile(
         max_requests_per_child => 3,
         weight => 1.0,
         config => +{
-            job_servers => '127.0.0.1',
+            job_servers => ['127.0.0.1'],
             workers => [qw( HogeHoge::Worker::Gearman::Sqrt )],
         }
     ),
 );
 
-$dainamo; # last line
+sub {
+    $dainamo; # last line
+}->();
