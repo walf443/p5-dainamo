@@ -53,12 +53,6 @@ sub register_workers {
 
 }
 
-sub client {
-    my ($self, ) = @_;
-    return unless $ENV{DAINAMO_ADMIN_PORT};
-    $self->{dainamo} ||= Dainamo::Client->new(server => $ENV{DAINAMO_ADMIN_PORT});
-}
-
 sub run {
     my ($self, %args) = @_;
 

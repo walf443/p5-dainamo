@@ -56,10 +56,10 @@ while ( 1 ) {
                     $datum->{counter});
 
             } elsif ( $datum->{type} eq 'master' ) {
-                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{max_workers}, $datum->{status}, $datum->{counter};
+                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{max_workers}, $datum->{status}, ($datum->{counter} || 0);
                 print $line . "\n";
             } elsif ( $datum->{type} eq 'manager' ) {
-                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{profile_name}, $datum->{max_workers}, $datum->{status}, $datum->{counter};
+                my $line = join "\t", $datum->{pid}, $datum->{type}, $datum->{profile_name}, $datum->{max_workers}, $datum->{status}, ($datum->{counter} || 0);
                 print $line . "\n";
             }
 

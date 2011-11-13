@@ -26,6 +26,12 @@ sub inspect {
     return $self->{name} ? "$class\[@{[ $self->{name} ]}]" : $class;
 }
 
+sub client {
+    my ($self, ) = @_;
+    return unless $ENV{DAINAMO_ADMIN_PORT};
+    $self->{dainamo} ||= Dainamo::Client->new(server => $ENV{DAINAMO_ADMIN_PORT});
+}
+
 sub run {
     die "please implement";
 }
