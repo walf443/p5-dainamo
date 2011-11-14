@@ -41,6 +41,7 @@ sub run {
             status => 'waiting',
             counter => $self->{counter},
         });
+        my $manager_pid = getppid();
         $self->client->get('update_counter', { manager_pid => $manager_pid });
     } else {
         $self->clear_qudo; # disconnect while sleep
