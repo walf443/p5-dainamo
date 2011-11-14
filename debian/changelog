@@ -1,3 +1,12 @@
+libdainamo-perl (0.08-1) unstable; urgency=low
+
+  * プロセスごとのjobの実行回数を記録するようにした
+  * managerごとのjobの実行回数を記録するようにした
+  * dainamoプロセス全体のjobの実行回数を記録するようにした
+  * gearmanのworkerの接続が失なう問題が直ってないので微調整してみた
+
+ -- Yoshimi <walf443@gmail.com>  Mon, 14 Nov 2011 10:53:45 +0900
+
 libdainamo-perl (0.07-5) unstable; urgency=low
 
   * dainamo-starterにrestartオプションを追加
