@@ -3,6 +3,8 @@ use strict;
 use warnings;
 use overload '""' => \&inspect;
 
+use Dainamo::Client;
+
 sub new {
     my ($class, %args) = @_;
     bless \%args, $class;
