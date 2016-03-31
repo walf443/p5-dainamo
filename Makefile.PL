@@ -20,6 +20,7 @@ requires 'Mouse';
 requires 'Parallel::Prefork';
 requires 'Proc::Daemon';
 requires 'Try::Tiny';
+requires 'Class::Load';
 requires 'opts';
 requires 'parent';
 
